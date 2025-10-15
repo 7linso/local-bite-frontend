@@ -1,0 +1,39 @@
+@import "tailwindcss";
+
+@theme {
+    --text-base: 14px;
+}
+
+@layer base {
+    html {
+        font-size: 16px;
+    }
+
+    @media (min-width: 768px) {
+        html {
+            font-size: 15px;
+        }
+    }
+
+    @media (min-width: 1024px) {
+        html {
+            font-size: 12px;
+        }
+    }
+
+    body {
+        @apply text-base text-gray-900;
+    }
+
+    h1 {
+        @apply text-2xl font-semibold;
+    }
+
+    h2 {
+        @apply text-xl font-semibold;
+    }
+
+    p {
+        @apply text-base leading-relaxed;
+    }
+}

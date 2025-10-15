@@ -1,9 +1,9 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { RouterView } from 'vue-router'
+</script>
 
 <template>
-  <div class="border rounded-lg border-gray-500 p-5">
-    hi
-  </div>
+  <RouterView/>
 </template>
 
 <style scoped></style>
