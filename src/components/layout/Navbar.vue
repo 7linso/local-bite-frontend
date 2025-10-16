@@ -3,9 +3,15 @@ import { LogIn, LogOut, User, Info } from 'lucide-vue-next';
 import { RouterLink } from 'vue-router';
 import { useAuthStore } from '@/stores/useAuthStore'
 import { storeToRefs } from 'pinia'
+import router from '@/router';
 
 const auth = useAuthStore()
 const { isAuth } = storeToRefs(auth)
+
+const onSignout = async() => {
+  await auth.signout()
+  router.replace('/')
+}
 </script>
 
 
@@ -23,7 +29,7 @@ const { isAuth } = storeToRefs(auth)
         <template v-else>
           <RouterLink to="/profile"><User /></RouterLink>
           <RouterLink to="/about"><Info /></RouterLink>
-          <button @click="auth.signout"><LogOut /></button>
+          <button @click="onSignout"><LogOut /></button>
         </template>
       </div>
     </nav>

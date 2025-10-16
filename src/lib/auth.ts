@@ -25,4 +25,10 @@ export const auth = {
             method: "POST",
         })
     },
+
+    me: () => {
+        return api("/auth/me", {
+            method: "GET"
+        })
+    }
 }

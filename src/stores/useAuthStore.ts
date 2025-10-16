@@ -7,16 +7,30 @@ export const useAuthStore = defineStore('auth', () => {
 
     const isAuth = computed(() => !!user.value)
 
+    function normalizeUser(u: any) {
+        return {
+            _id: u._id,
+            fullname: u.fullname,
+            username: u.username,
+            email: u.email,
+            bio: u.bio ?? null,
+            createdAt: u.createdAt,
+            updatedAt: u.updatedAt,
+            profilePic: u.profilePic?.imageURL ?? null,
+            location: u.location ?? null,
+        }
+    }
+
     const signup = async (payload: any) => {
-        const data = await apiAuth.signup(payload)
-        user.value = data
-        return data
+        const res = await apiAuth.signup(payload)
+        user.value = normalizeUser(res.user ?? res)
+        return user.value
     }
 
     const signin = async (payload: any) => {
-        const data = await apiAuth.signin(payload)
-        user.value = data
-        return data
+        const res = await apiAuth.signin(payload)
+        user.value = normalizeUser(res.user ?? res)
+        return user.value
     }
 
     const signout = async () => {
@@ -24,5 +38,10 @@ export const useAuthStore = defineStore('auth', () => {
         user.value = null
     }
 
-    return {user, isAuth, signup, signin, signout}
+    const me = async () => {
+        const res = await apiAuth.me()
+        user.value = normalizeUser(res.user ?? res)
+    }
+
+    return { user, isAuth, signup, signin, signout, me }
 })

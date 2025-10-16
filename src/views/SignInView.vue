@@ -1,8 +1,9 @@
 <script lang="ts" setup>
 import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { auth } from '@/lib/auth'
+import { useAuthStore } from '@/stores/useAuthStore'
 
+const auth = useAuthStore()
 const router = useRouter()
 
 const form = reactive({
@@ -37,7 +38,7 @@ async function onSubmit() {
       password: form.password,
     })
 
-    router.push('/about') 
+    router.push('/profile') 
   } catch (e: any) {
         errors.form = e.data?.message || 'Sign up failed'
   } finally {
