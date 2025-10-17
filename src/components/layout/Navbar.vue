@@ -17,7 +17,7 @@ const onSignout = async() => {
 
 <template>
   <header class="border-b p-4">
-    <nav class="flex items-center justify-between">
+    <nav class="flex items-center justify-between max-w-[1000px] mx-auto w-full">
       <RouterLink to="/" class="font-bold text-lg">local-bite</RouterLink>
 
       <div class="flex items-center gap-3">

@@ -13,7 +13,10 @@ export const auth = {
         })
     },
 
-    signin: (payload: { identifier: string; password: string }) => {
+    signin: (payload: {
+        identifier: string;
+        password: string
+    }) => {
         return api("/auth/signin", {
             method: "POST",
             body: JSON.stringify(payload),
@@ -30,5 +33,14 @@ export const auth = {
         return api("/auth/me", {
             method: "GET"
         })
-    }
+    },
+
+    updateProfilePic: (payload: {
+        profilePic: string;
+    }) => {
+        return api("/auth/update-profile-pic", {
+            method: "PATCH",
+            body: JSON.stringify(payload),
+        })
+    },
 }

@@ -1,13 +1,30 @@
-import { defineStore } from "pinia";
-import { computed, ref } from "vue";
-import { auth as apiAuth } from "@/lib/auth";
+import { defineStore } from 'pinia'
+import { computed, ref } from 'vue'
+import { auth as apiAuth } from '@/lib/auth'
+
+type RawUser = any
+
+type User = {
+    _id: string
+    fullname?: string
+    username?: string
+    email?: string
+    bio?: string | null
+    createdAt?: string
+    updatedAt?: string
+    profilePic?: string | null
+    location?: string | null
+}
 
 export const useAuthStore = defineStore('auth', () => {
-    const user = ref<any>(null)
+    const user = ref<User | null>(null)
+    const initialized = ref(false)
 
     const isAuth = computed(() => !!user.value)
 
-    function normalizeUser(u: any) {
+    function normalizeUser(u: RawUser): User {
+        const pic = u.profilePic
+        const imageURL = typeof pic === 'string' ? pic : pic?.imageURL
         return {
             _id: u._id,
             fullname: u.fullname,
@@ -16,7 +33,7 @@ export const useAuthStore = defineStore('auth', () => {
             bio: u.bio ?? null,
             createdAt: u.createdAt,
             updatedAt: u.updatedAt,
-            profilePic: u.profilePic?.imageURL ?? null,
+            profilePic: imageURL ?? null,
             location: u.location ?? null,
         }
     }
@@ -34,7 +51,7 @@ export const useAuthStore = defineStore('auth', () => {
     }
 
     const signout = async () => {
-        const data = await apiAuth.signout()
+        await apiAuth.signout()
         user.value = null
     }
 
@@ -43,5 +60,31 @@ export const useAuthStore = defineStore('auth', () => {
         user.value = normalizeUser(res.user ?? res)
     }
 
-    return { user, isAuth, signup, signin, signout, me }
+    const updateProfilePic = async (payload: any) => {
+        const res = await apiAuth.updateProfilePic(payload)
+        user.value = normalizeUser(res.user ?? res)
+        return user.value
+    }
+
+    const ensureAuthChecked = async () => {
+        if (initialized.value) return
+        try {
+            await me()
+        } catch {
+        } finally {
+            initialized.value = true
+        }
+    }
+
+    return {
+        user,
+        isAuth,
+        signup,
+        signin,
+        signout,
+        me,
+        updateProfilePic,
+        ensureAuthChecked,
+        initialized
+    }
 })

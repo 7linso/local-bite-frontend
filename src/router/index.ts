@@ -30,23 +30,16 @@ const router = createRouter({
 
 router.beforeEach(async (to) => {
   const auth = useAuthStore()
-  console.log(auth.isAuth)
-
-  if (!auth.user && document.cookie.includes('jwt')) {
-    try { await auth.me() } catch { }
-  }
+  await auth.ensureAuthChecked()  
 
   const requiresAuth = to.matched.some(r => r.meta.requiresAuth)
-  const guestOnly = to.matched.some(r => r.meta.guestOnly)
+  const guestOnly    = to.matched.some(r => r.meta.guestOnly)
 
-  if (requiresAuth && !auth.isAuth) {
-    return { name: 'signup', query: { redirect: to.fullPath } }
-  }
+  if (requiresAuth && !auth.isAuth)
+    return { name: 'signin', query: { redirect: to.fullPath } }
 
-  if (guestOnly && auth.isAuth) {
+  if (guestOnly && auth.isAuth)
     return { name: 'profile' }
-  }
 })
-
 
 export default router

@@ -26,7 +26,7 @@ const validate = () => {
     return Object.keys(errors).length === 0
 }
 
-async function onSubmit() {
+const onSignIn = async() => {
   if (!validate()) 
     return
 
@@ -38,7 +38,7 @@ async function onSubmit() {
       password: form.password,
     })
 
-    router.push('/profile') 
+    router.push('/') 
   } catch (e: any) {
         errors.form = e.data?.message || 'Sign up failed'
   } finally {
@@ -50,7 +50,7 @@ async function onSubmit() {
 
 <template>
   <section class="flex items-center justify-center mt-10 ">
-    <form @submit.prevent="onSubmit"
+    <form @submit.prevent="onSignIn"
       class="w-[90%] sm:w-[400px] md:w-[500px] lg:w-[600px]
              border rounded-lg border-gray-900 p-5 bg-white shadow-sm text-sm"
     >
