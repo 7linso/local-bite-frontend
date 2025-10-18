@@ -3,9 +3,11 @@ import { reactive, ref, watch } from 'vue'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { storeToRefs } from 'pinia'
 import { Check, Edit, ChefHat, X, Loader2 } from 'lucide-vue-next'
+import { useToast } from 'vue-toast-notification'
 
 const auth = useAuthStore()
 const { user } = storeToRefs(auth)
+const $toast = useToast()
 
 const isEditing = ref(false)
 
@@ -66,8 +68,14 @@ const setAllFromUser = () => {
 }
 
 const onUpdateProfile = async () => {
-    if (!validate()) 
+    if (!validate()) {
+        $toast.open({
+            message: 'Check credentials!',
+            type: 'error',   
+            position: 'top'
+        });
         return
+    }
 
     isEditing.value = true
 
@@ -81,6 +89,7 @@ const onUpdateProfile = async () => {
 
         isEditing.value = false
         setAllFromUser()
+        $toast.success('Success!', {position: 'top'})
     } catch (e: any) {
         const msg= e.data?.message || 'Sign up failed'
 
@@ -95,6 +104,12 @@ const onUpdateProfile = async () => {
         } else {
             errors.form = msg;
         }
+
+        $toast.open({
+            message: 'Failed to update profile!',
+            type: 'error',   
+            position: 'top'
+        });
     }
 }
 
@@ -124,7 +139,6 @@ const compressPic = async (dataUrl: string, maxW: 512, quality = 0.85): Promise<
 
     const out = canvas.toDataURL('image/jpeg', quality)
     return out
-
 }
 
 const handleUpdateProfilePic = async() => {
@@ -139,14 +153,23 @@ const onPickProfilePic = async(e: Event) => {
     const allowed = ['image/jpeg', 'image/png', 'image/webp']
 
     if(!allowed.includes(file.type)){
-        alert('Please select a JPG/PNG/WEBP image.')
+        $toast.open({
+            message: 'Use allowed format: jpeg, png, webp!',
+            type: 'error',   
+            position: 'top'
+        });
         input.value = ''
         return
     }
 
     const MAX_SIZE = 5 * 1024 * 1024
     if(file.size > MAX_SIZE){
-        alert(`Please select a smaller image. Max ${MAX_SIZE / 1024 / 1024} mb`)
+        $toast.open({
+            message: `Please select a smaller image. Max ${MAX_SIZE / 1024 / 1024} mb`,
+            type: 'error',   
+            position: 'top'
+        });
+        alert()
         input.value = ''
         return
     }
@@ -162,9 +185,14 @@ const onPickProfilePic = async(e: Event) => {
 
         await auth.updateProfilePic({ profilePic: compressed })
         tempPreview.value = null
+        $toast.success('Success!', {position: 'top'})
     } catch (e: unknown) {
         console.error('Upload failed', e)
-        alert('Failed to update profile picture.')
+        $toast.open({
+            message: 'Failed to update profile picture!',
+            type: 'error',   
+            position: 'top'
+        });
 
         tempPreview.value = null
     } finally {

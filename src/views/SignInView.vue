@@ -2,6 +2,9 @@
 import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/useAuthStore'
+import { useToast } from 'vue-toast-notification'
+
+const $toast = useToast()
 
 const auth = useAuthStore()
 const router = useRouter()
@@ -38,9 +41,15 @@ const onSignIn = async() => {
       password: form.password,
     })
 
+    $toast.success('Welcome Back!', {position: 'top'})
     router.push('/') 
   } catch (e: any) {
-        errors.form = e.data?.message || 'Sign up failed'
+      errors.form = e.data?.message || 'Sign up failed'
+      $toast.open({
+        message: 'Failed to sign in!',
+        type: 'error',   
+        position: 'top'
+      });
   } finally {
     loading.value = false
   }

@@ -2,9 +2,11 @@
 import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/useAuthStore'
+import { useToast } from 'vue-toast-notification'
 
 const auth = useAuthStore()
 const router = useRouter()
+const $toast = useToast()
 
 const form =reactive({
     fullname: '',
@@ -43,8 +45,14 @@ const validate = () => {
 }
 
 const onSignUp = async () => {
-  if (!validate()) 
+  if (!validate()){
+    $toast.open({
+        message: 'Check credentials!', 
+        type: 'error',
+        position: 'top'
+      })
     return
+  }
 
   loading.value = true
 
@@ -56,9 +64,15 @@ const onSignUp = async () => {
       password: form.password,
     })
 
+    $toast.success('Welcome Back!', {position: 'top'})
     router.push('/') 
   } catch (e: any) {
-        errors.form = e.data?.message || 'Sign up failed'
+      errors.form = e.data?.message || 'Sign up failed'
+      $toast.open({
+        message: 'Failed to sign up!', 
+        type: 'error',
+        position: 'top'
+      })
   } finally {
     loading.value = false
   }
