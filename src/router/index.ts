@@ -30,10 +30,10 @@ const router = createRouter({
 
 router.beforeEach(async (to) => {
   const auth = useAuthStore()
-  await auth.ensureAuthChecked()  
+  await auth.ensureAuthChecked()
 
   const requiresAuth = to.matched.some(r => r.meta.requiresAuth)
-  const guestOnly    = to.matched.some(r => r.meta.guestOnly)
+  const guestOnly = to.matched.some(r => r.meta.guestOnly)
 
   if (requiresAuth && !auth.isAuth)
     return { name: 'signin', query: { redirect: to.fullPath } }

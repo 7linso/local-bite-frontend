@@ -66,6 +66,12 @@ export const useAuthStore = defineStore('auth', () => {
         return user.value
     }
 
+    const updateProfile = async (payload: any) => {
+        const res = await apiAuth.updateProfile(payload)
+        user.value = normalizeUser(res.user ?? res)
+        return user.value
+    }
+
     const ensureAuthChecked = async () => {
         if (initialized.value) return
         try {
@@ -84,6 +90,7 @@ export const useAuthStore = defineStore('auth', () => {
         signout,
         me,
         updateProfilePic,
+        updateProfile,
         ensureAuthChecked,
         initialized
     }

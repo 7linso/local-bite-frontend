@@ -1,4 +1,5 @@
 import { api } from "@/services/api"
+import type { StringMappingType } from "typescript"
 
 export const auth = {
     signup: (payload: {
@@ -43,4 +44,16 @@ export const auth = {
             body: JSON.stringify(payload),
         })
     },
+
+    updateProfile: (payload: {
+        fullname: String,
+        username: String,
+        email: String,
+        bio: String
+    }) => {
+        return api('/auth/update-profile', {
+            method: "PATCH",
+            body: JSON.stringify(payload)
+        })
+    }
 }

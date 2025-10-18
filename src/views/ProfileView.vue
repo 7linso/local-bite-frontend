@@ -55,10 +55,47 @@ const validate = () => {
     return Object.keys(errors).length === 0
 }
 
-const onUpdateProfile = async () => {
-    if (!validate()) return
+const setAllFromUser = () => {
+    if(!user.value) 
+        return
 
-    isEditing.value = false
+    form.fullname = user.value.fullname ?? ''
+    form.username = user.value.username ?? ''
+    form.email = user.value.email ?? ''
+    form.bio = user.value.bio ?? ''
+}
+
+const onUpdateProfile = async () => {
+    if (!validate()) 
+        return
+
+    isEditing.value = true
+
+    try{
+        await auth.updateProfile({
+            fullname: form.fullname,
+            username: form.username,
+            email: form.email,
+            bio: form.bio
+        })
+
+        isEditing.value = false
+        setAllFromUser()
+    } catch (e: any) {
+        const msg= e.data?.message || 'Sign up failed'
+
+        if (msg === "Username already taken.") {
+            errors.username = msg;
+        } else if (msg === 'Email already used.') {
+            errors.email = msg;
+        } else if (msg === "Not valid email.") {
+            errors.email = msg;
+        } else if (msg === 'Bio is too long. Max 200 characters.') {
+            errors.bio = msg;
+        } else {
+            errors.form = msg;
+        }
+    }
 }
 
 const fileToDataUrl = async(file: File):Promise<string> => {
@@ -267,7 +304,7 @@ const onPickProfilePic = async(e: Event) => {
             </div>
 
             <!-- location -->
-            <label for="fullname" class="md:text-right md:self-start md:pt-1">
+            <!-- <label for="fullname" class="md:text-right md:self-start md:pt-1">
                 full name
             </label>
             <div>
@@ -280,7 +317,7 @@ const onPickProfilePic = async(e: Event) => {
                     class="w-full px-3 py-1 rounded-lg border border-gray-600 bg-gray-100"
                 />
                 <p v-if="errors.fullname" class="text-xs text-red-600">{{ errors.fullname }}</p>
-            </div>
+            </div> -->
         </div>
     </form>
   </section>
