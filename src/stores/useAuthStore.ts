@@ -9,8 +9,8 @@ export const useAuthStore = defineStore('auth', () => {
 
     const isAuth = computed(() => !!user.value)
 
-
     const normalizeUser = (u: ApiUser): User => {
+        const dl = u.defaultLocation ?? null
         return {
             _id: u._id,
             fullname: u.fullname,
@@ -20,8 +20,10 @@ export const useAuthStore = defineStore('auth', () => {
             createdAt: u.createdAt,
             updatedAt: u.updatedAt,
             profilePic: u.profilePic ?? null,
-            location: u.location ?? null
-        };
+            favs: u.favs ?? [],
+            defaultLocation: dl,
+            defaultLocationId: u.defaultLocationId ?? dl?._id ?? null,
+        }
     }
 
     const signup = async (payload: SignupPayload) => {

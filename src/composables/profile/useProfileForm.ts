@@ -17,10 +17,9 @@ export function useProfileForm(
 
     const errors = ref<Record<string, string>>({})
 
-    const setAllFromUser = () => {
+    function setAllFromUser() {
         const u = auth.user
-        if (!u)
-            return
+        if (!u) return
 
         form.value = {
             fullname: u.fullname ?? '',
@@ -28,9 +27,9 @@ export function useProfileForm(
             email: u.email ?? '',
             bio: u.bio ?? '',
             location: {
-                locality: u.location?.locality ?? '',
-                area: u.location?.area ?? '',
-                country: u.location?.country ?? ''
+                locality: u.defaultLocation?.locality ?? '',
+                area: u.defaultLocation?.area ?? '',
+                country: u.defaultLocation?.country ?? '',
             }
         }
     }
