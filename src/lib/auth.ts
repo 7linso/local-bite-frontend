@@ -1,59 +1,22 @@
-import { api } from "@/services/api"
-import type { StringMappingType } from "typescript"
+import { api } from '@/services/api'
+import type {
+    SigninPayload,
+    SignupPayload,
+    UpdateProfilePayload
+} from './types'
 
 export const auth = {
-    signup: (payload: {
-        fullname: string
-        username: string
-        email: string
-        password: string
-    }) => {
-        return api("/auth/signup", {
-            method: "POST",
-            body: JSON.stringify(payload),
-        })
-    },
+    signup: (p: SignupPayload) => api.post('/auth/signup', p),
 
-    signin: (payload: {
-        identifier: string;
-        password: string
-    }) => {
-        return api("/auth/signin", {
-            method: "POST",
-            body: JSON.stringify(payload),
-        })
-    },
+    signin: (p: SigninPayload) => api.post('/auth/signin', p),
 
-    signout: () => {
-        return api("/auth/signout", {
-            method: "POST",
-        })
-    },
+    signout: () => api.post('/auth/signout'),
 
-    me: () => {
-        return api("/auth/me", {
-            method: "GET"
-        })
-    },
+    me: () => api.get('/auth/me'),
 
-    updateProfilePic: (payload: {
-        profilePic: string;
-    }) => {
-        return api("/auth/update-profile-pic", {
-            method: "PATCH",
-            body: JSON.stringify(payload),
-        })
-    },
+    updateProfilePic: (p: { profilePic: string }) => api.patch('/auth/update-profile-pic', p),
 
-    updateProfile: (payload: {
-        fullname: String,
-        username: String,
-        email: String,
-        bio: String
-    }) => {
-        return api('/auth/update-profile', {
-            method: "PATCH",
-            body: JSON.stringify(payload)
-        })
-    }
+    updateProfile: (p: UpdateProfilePayload) => api.patch('/auth/update-profile', p),
+
+    deleteProfile: () => api.delete('/auth/delete-profile')
 }

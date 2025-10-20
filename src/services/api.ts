@@ -1,26 +1,18 @@
+import axios from 'axios'
+
 const BASE = import.meta.env.VITE_API_URL
 
-export async function api(path: string, init?: RequestInit) {
-    const res = await fetch(`${BASE}${path}`, {
-        credentials: 'include',
-        headers: {
-            'Content-Type': 'application/json',
-            ...(init?.headers || {}),
-        },
-        ...init,
-    })
+export const api = axios.create({
+    baseURL: BASE,
+    withCredentials: true,
+    headers: { 'Content-Type': 'application/json' },
+})
 
-    const text = await res.text()
-    let data: any = null
-    try {
-        data = text ? JSON.parse(text) : null
-    } catch {
-        data = text
+api.interceptors.response.use(
+    (res) => res.data,
+    (error) => {
+        const status = error?.response?.status ?? 0
+        const data = error?.response?.data ?? { message: error.message ?? 'Request failed' }
+        return Promise.reject({ status, data })
     }
-
-    if (!res.ok) {
-        throw { status: res.status, data }
-    }
-
-    return data
-}
+)

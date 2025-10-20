@@ -1,20 +1,7 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { auth as apiAuth } from '@/lib/auth'
-
-type RawUser = any
-
-type User = {
-    _id: string
-    fullname?: string
-    username?: string
-    email?: string
-    bio?: string | null
-    createdAt?: string
-    updatedAt?: string
-    profilePic?: string | null
-    location?: string | null
-}
+import type { User, ApiUser, SignupPayload, SigninPayload, UpdateProfilePayload, } from '@/lib/types'
 
 export const useAuthStore = defineStore('auth', () => {
     const user = ref<User | null>(null)
@@ -22,9 +9,8 @@ export const useAuthStore = defineStore('auth', () => {
 
     const isAuth = computed(() => !!user.value)
 
-    function normalizeUser(u: RawUser): User {
-        const pic = u.profilePic
-        const imageURL = typeof pic === 'string' ? pic : pic?.imageURL
+
+    const normalizeUser = (u: ApiUser): User => {
         return {
             _id: u._id,
             fullname: u.fullname,
@@ -33,20 +19,20 @@ export const useAuthStore = defineStore('auth', () => {
             bio: u.bio ?? null,
             createdAt: u.createdAt,
             updatedAt: u.updatedAt,
-            profilePic: imageURL ?? null,
-            location: u.location ?? null,
-        }
+            profilePic: u.profilePic ?? null,
+            location: u.location ?? null
+        };
     }
 
-    const signup = async (payload: any) => {
+    const signup = async (payload: SignupPayload) => {
         const res = await apiAuth.signup(payload)
-        user.value = normalizeUser(res.user ?? res)
+        user.value = normalizeUser((res as any).user ?? res)
         return user.value
     }
 
-    const signin = async (payload: any) => {
+    const signin = async (payload: SigninPayload) => {
         const res = await apiAuth.signin(payload)
-        user.value = normalizeUser(res.user ?? res)
+        user.value = normalizeUser((res as any).user ?? res)
         return user.value
     }
 
@@ -56,20 +42,31 @@ export const useAuthStore = defineStore('auth', () => {
     }
 
     const me = async () => {
-        const res = await apiAuth.me()
-        user.value = normalizeUser(res.user ?? res)
+        try {
+            const res = await apiAuth.me()
+            user.value = normalizeUser((res as any).user ?? res)
+        } catch (e: any) {
+            user.value = null
+            throw e
+        }
     }
 
-    const updateProfilePic = async (payload: any) => {
+
+    const updateProfilePic = async (payload: { profilePic: string }) => {
         const res = await apiAuth.updateProfilePic(payload)
-        user.value = normalizeUser(res.user ?? res)
+        user.value = normalizeUser((res as any).user ?? res)
         return user.value
     }
 
-    const updateProfile = async (payload: any) => {
+    const updateProfile = async (payload: UpdateProfilePayload) => {
         const res = await apiAuth.updateProfile(payload)
-        user.value = normalizeUser(res.user ?? res)
+        user.value = normalizeUser((res as any).user ?? res)
         return user.value
+    }
+
+    const deleteProfile = async () => {
+        await apiAuth.deleteProfile()
+        user.value = null
     }
 
     const ensureAuthChecked = async () => {
@@ -91,6 +88,7 @@ export const useAuthStore = defineStore('auth', () => {
         me,
         updateProfilePic,
         updateProfile,
+        deleteProfile,
         ensureAuthChecked,
         initialized
     }
