@@ -3,7 +3,7 @@ import type {
     SigninPayload,
     SignupPayload,
     UpdateProfilePayload
-} from './types'
+} from '../types'
 
 export const auth = {
     signup: (p: SignupPayload) => api.post('/auth/signup', p),

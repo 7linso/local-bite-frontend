@@ -1,18 +1,22 @@
 <script setup lang="ts">
-import { CookieIcon } from 'lucide-vue-next';
+import { ref } from 'vue'
+import { CookieIcon } from 'lucide-vue-next'
 
 const props = defineProps<{
   src: string | null
   isEditing: boolean
   isUploading: boolean
   tempPreview: string | null
-  fileInputRef: HTMLInputElement | null
 }>()
 
 const emit = defineEmits<{
-  (e: 'change'): void
   (e: 'pick', ev: Event): void
 }>()
+
+const fileInput = ref<HTMLInputElement | null>(null)
+
+const openPicker = () => fileInput.value?.click()
+const onChange = (ev: Event) => emit('pick', ev)
 </script>
 
 <template>
@@ -22,14 +26,14 @@ const emit = defineEmits<{
       type="file"
       accept="image/png,image/jpeg,image/webp"
       class="hidden"
-      @change="$emit('pick', $event)"
+      @change="onChange"
     />
     <button
       type="button"
-      @click="$emit('change')"
+      @click="openPicker"
       class="relative flex items-center justify-center border rounded-full w-20 h-20 overflow-hidden bg-gray-100 cursor-pointer focus:outline-none focus:ring-2 focus:ring-brand/60"
       aria-label="Change profile picture"
-      :disabled="!isEditing || isUploading"
+      :disabled="isUploading"
     >
       <img
         v-if="tempPreview || src"
@@ -38,7 +42,7 @@ const emit = defineEmits<{
         class="object-cover w-full h-full"
       />
       <span v-else class="text-gray-400 text-xs">
-        <CookieIcon :size="30"/>
+        <CookieIcon :size="30" />
       </span>
     </button>
   </div>

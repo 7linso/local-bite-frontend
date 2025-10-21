@@ -10,8 +10,6 @@ export function useProfilePicture(
     const tempPreview = ref<string | null>(null)
     const fileInputref = ref<HTMLInputElement | null>(null)
 
-    const triggerPick = () => fileInputref.value?.click()
-
     const onPickProfilePic = async (e: Event) => {
         const input = e.target as HTMLInputElement
 
@@ -72,7 +70,6 @@ export function useProfilePicture(
         isUploading,
         tempPreview,
         fileInputref,
-        triggerPick,
         onPickProfilePic
     }
 }

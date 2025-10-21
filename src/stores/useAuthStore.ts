@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
-import { auth as apiAuth } from '@/lib/auth'
+import { auth as apiAuth } from '@/lib/api/auth'
 import type { User, ApiUser, SignupPayload, SigninPayload, UpdateProfilePayload, } from '@/lib/types'
 
 export const useAuthStore = defineStore('auth', () => {

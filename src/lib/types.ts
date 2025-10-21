@@ -79,4 +79,10 @@ export type UpdateProfilePayload = Partial<{
 }>;
 
 export type ApiResponse<T> = T | { user: T };
+
 export type RawUser = any;
+
+export type AllCoords = {
+    count: number,
+    coords: [number, number][]
+}

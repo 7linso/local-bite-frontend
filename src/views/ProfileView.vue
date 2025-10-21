@@ -33,9 +33,7 @@ const {
 const {
   isUploading, 
   tempPreview, 
-  triggerPick, 
-  onPickProfilePic, 
-  fileInputref
+  onPickProfilePic
 } = useProfilePicture(auth, $toast)
 
 watch(user, (u) => {
@@ -99,8 +97,6 @@ const handleDelete = async () => {
           :is-editing="isEditing"
           :is-uploading="isUploading"
           :temp-preview="tempPreview"
-          :file-input-ref="fileInputref"
-          @change="triggerPick"
           @pick="onPickProfilePic"
         />
       </div>
