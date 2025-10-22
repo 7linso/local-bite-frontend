@@ -1,4 +1,7 @@
-export type GeoPoint = { type: 'Point'; coordinates: [number, number] };
+export type GeoPoint = {
+    type: 'Point';
+    coordinates: [number, number]
+};
 
 export type Location = {
     _id?: string;
@@ -68,6 +71,14 @@ export type SignupPayload = {
     username: string;
     email: string;
     password: string;
+};
+
+export type SignupFormPayload = {
+    fullname: string;
+    username: string;
+    email: string;
+    password: string;
+    password2: string;
 };
 
 export type UpdateProfilePayload = Partial<{
