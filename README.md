@@ -23,10 +23,16 @@ show how you make your favs in your area and discover how others do it, too.
 
 # tech stack
 - vue 3 (composition api) + vite
-- pinia (state) + vue router
-- tailwind css + daisyui
-- maptiler i guess
-- api... express? (update: currently working on backend, express + mongo)
+- pinia 
+- vue-router
+- tailwindcss 
+- maptiler and maplibre-gl for maps
+- axios
+- lucide-vue-next for icons
+- vue-toast-notification cause it's prettier than alert
+
+# curr working on
+- reciepes flow (create, edit, delete, list, details)
 
 # license
 MIT. do what you want—just don’t blame me for burnt pans
