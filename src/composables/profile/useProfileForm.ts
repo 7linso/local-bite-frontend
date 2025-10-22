@@ -12,7 +12,11 @@ export const useProfileForm = (
         username: '',
         email: '',
         bio: '',
-        location: { locality: '', area: '', country: '' }
+        location: {
+            locality: '',
+            area: '',
+            country: ''
+        }
     })
 
     let errors = reactive<Record<string, string>>({})
@@ -31,7 +35,6 @@ export const useProfileForm = (
                 country: u.defaultLocation?.country ?? '',
             }
     }
-
 
     const validate = () => {
         if (!form.fullname)

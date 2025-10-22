@@ -97,3 +97,19 @@ export type AllCoords = {
     count: number,
     coords: [number, number][]
 }
+
+export type Ingredient = {
+    ingredient: string,
+    amount: number,
+    measure: string
+}
+
+export type RecipePayload = {
+    title: string,
+    description: string,
+    ingredients: Ingredient[],
+    instructions: string[],
+    dishTypes: string[],
+    recipePic: string,
+    location: FormLocation
+}

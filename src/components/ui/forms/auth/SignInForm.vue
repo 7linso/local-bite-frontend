@@ -15,7 +15,7 @@ const emit = defineEmits<{ (e: 'submit'): void }>()
     <form
       @submit.prevent="emit('submit')"
       class="w-[90%] sm:w-[400px] md:w-[500px] lg:w-[600px]
-             border rounded-lg border-gray-900 p-5 bg-white shadow-sm text-sm"
+             border rounded-md border-gray-900 p-5 bg-white shadow-sm text-sm"
     >
       <p v-if="errors.form" class="text-xs text-red-600">{{ errors.form }}</p>
 
@@ -34,7 +34,7 @@ const emit = defineEmits<{ (e: 'submit'): void }>()
             type="text"
             autocomplete="username email"
             placeholder="John Doe"
-            class="w-full px-3 py-1 rounded-lg border border-gray-800 bg-gray-100"
+            class="w-full px-3 py-1 rounded-md border border-gray-800 bg-gray-100"
           />
           <p v-if="errors.identifier" class="text-xs text-red-600">
             {{ errors.identifier }}
@@ -52,7 +52,7 @@ const emit = defineEmits<{ (e: 'submit'): void }>()
             type="password"
             autocomplete="current-password"
             placeholder="password"
-            class="w-full px-3 py-1 rounded-lg border border-gray-800 bg-gray-100"
+            class="w-full px-3 py-1 rounded-md border border-gray-800 bg-gray-100"
           />
           <p v-if="errors.password" class="text-xs text-red-600">
             {{ errors.password }}
@@ -64,7 +64,7 @@ const emit = defineEmits<{ (e: 'submit'): void }>()
         <button
           :disabled="loading"
           type="submit"
-          class="px-4 py-1.5 rounded-lg border border-gray-800 hover:bg-gray-100 transition-colors"
+          class="px-4 py-1.5 rounded-md border border-gray-800 hover:bg-gray-100 transition-colors"
         >
           Sign in
         </button>

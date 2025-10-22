@@ -4,8 +4,9 @@ import { locations } from '@/lib/api/locations'
 import { ref, onMounted } from 'vue'
 import { useToast } from 'vue-toast-notification'
 import type { FeatureCollection, Feature, Point } from 'geojson'
+import { RouterLink } from 'vue-router'
 
-const $toast = useToast()
+const toast = useToast()
 
 const geojson = ref<FeatureCollection<Point>>({
   type: 'FeatureCollection',
@@ -29,7 +30,7 @@ onMounted(async () => {
     geojson.value = fc
   } catch (e) {
     console.log(e)
-    $toast.error('Cannot fetch locations!', { position: 'top' })
+    toast.error('Cannot fetch locations!', { position: 'top' })
   }
 })
 </script>
@@ -39,8 +40,8 @@ onMounted(async () => {
     <MapView 
         :spinPeriodSec="160" 
         :points="geojson"
-     />
-
+    />
+    
     <!-- darken gradient -->
     <div class="pointer-events-none absolute inset-0 z-10 bg-gradient-to-t from-black/50 via-black/20 to-transparent" />
 
@@ -49,9 +50,15 @@ onMounted(async () => {
         <h1 class="text-5xl md:text-6xl font-bold drop-shadow-lg">
             Local-Bite
         </h1>
-        <p class="mt-3 text-lg md:text-xl opacity-90">
+        <p class="mt-3 text-lg  md:text-xl font-semibold opacity-90">
             Bite every bit of the world
         </p>
+        <RouterLink
+          to="/recipes"
+          class="mt-2 text-lg md:text-xl font-bold drop-shadow-lg py-1.5 px-2.5 border border-white rounded-md"
+        >
+          Start exploring
+        </RouterLink>
     </div>
   </div>
 </template>

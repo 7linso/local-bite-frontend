@@ -14,7 +14,7 @@ const emit = defineEmits<{(e: 'submit'): void}>()
     <section class="flex items-center justify-center mt-10 ">
     <form @submit.prevent="emit('submit')"
       class="w-[90%] sm:w-[400px] md:w-[500px] lg:w-[600px]
-             border rounded-lg border-gray-900 p-5 bg-white shadow-sm text-sm"
+             border rounded-md border-gray-900 p-5 bg-white shadow-sm text-sm"
     >
       <div
         class="grid gap-y-1 md:gap-y-3 gap-x-4
@@ -31,7 +31,7 @@ const emit = defineEmits<{(e: 'submit'): void}>()
                 id="fullname"
                 type="text"
                 placeholder="John Doe"
-                class="w-full px-3 py-1 rounded-lg border border-gray-800 bg-gray-100"
+                class="w-full px-3 py-1 rounded-md border border-gray-800 bg-gray-100"
             />
             <p v-if="errors.fullname" class="text-xs text-red-600">{{ errors.fullname }}</p>
         </div>
@@ -46,7 +46,7 @@ const emit = defineEmits<{(e: 'submit'): void}>()
                 id="email"
                 type="email"
                 placeholder="john1doe@gmail.com"
-                class="w-full px-3 py-1 rounded-lg border border-gray-800 bg-gray-100"
+                class="w-full px-3 py-1 rounded-md border border-gray-800 bg-gray-100"
             />
             <p v-if="errors.email" class="text-xs text-red-600">{{ errors.email }}</p>
 
@@ -62,7 +62,7 @@ const emit = defineEmits<{(e: 'submit'): void}>()
                 id="username"
                 type="text"
                 placeholder="john_doe111"
-                class="w-full px-3 py-1 rounded-lg border border-gray-800 bg-gray-100"
+                class="w-full px-3 py-1 rounded-md border border-gray-800 bg-gray-100"
             />
             <p v-if="errors.username" class="text-xs text-red-600">{{ errors.username }}</p>
         </div>
@@ -77,7 +77,7 @@ const emit = defineEmits<{(e: 'submit'): void}>()
                 id="password"
                 type="password"
                 placeholder="password"
-                class="w-full px-3 py-1 rounded-lg border border-gray-800 bg-gray-100"
+                class="w-full px-3 py-1 rounded-md border border-gray-800 bg-gray-100"
             />
             <p v-if="errors.password" class="text-xs text-red-600">{{ errors.password }}</p>
 
@@ -93,7 +93,7 @@ const emit = defineEmits<{(e: 'submit'): void}>()
                 id="password2"
                 type="password"
                 placeholder="password"
-                class="w-full px-3 py-1 rounded-lg border border-gray-800 bg-gray-100"
+                class="w-full px-3 py-1 rounded-md border border-gray-800 bg-gray-100"
             />
             <p v-if="errors.password2" class="text-xs text-red-600">{{ errors.password2 }}</p>
         </div>
@@ -103,7 +103,7 @@ const emit = defineEmits<{(e: 'submit'): void}>()
         <button
           :disabled="loading"
           type="submit"
-          class="px-4 py-1.5 rounded-lg border border-gray-800 hover:bg-gray-100 transition-colors"
+          class="px-4 py-1.5 rounded-md border border-gray-800 hover:bg-gray-100 transition-colors"
         >
           Sign up
         </button>

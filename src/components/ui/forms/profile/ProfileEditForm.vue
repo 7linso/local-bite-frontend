@@ -30,7 +30,7 @@ const update = <K extends keyof ProfileForm>(k: K, v: ProfileForm[K]) => {
         type="text" 
         placeholder="John Doe" 
         :disabled="disabled"
-        class="w-full px-3 py-1 rounded-lg border border-gray-600 bg-gray-100"
+        class="w-full px-3 py-1 rounded-md border border-gray-600 bg-gray-100"
       />
       <p v-if="errors.fullname" class="text-xs text-red-600">{{ errors.fullname }}</p>
     </div>
@@ -49,7 +49,7 @@ const update = <K extends keyof ProfileForm>(k: K, v: ProfileForm[K]) => {
         type="email" 
         placeholder="john1doe@gmail.com" 
         :disabled="disabled"
-        class="w-full px-3 py-1 rounded-lg border border-gray-600 bg-gray-100"
+        class="w-full px-3 py-1 rounded-md border border-gray-600 bg-gray-100"
       />
       <p v-if="errors.email" class="text-xs text-red-600">{{ errors.email }}</p>
     </div>
@@ -68,7 +68,7 @@ const update = <K extends keyof ProfileForm>(k: K, v: ProfileForm[K]) => {
         type="text" 
         placeholder="john_doe111" 
         :disabled="disabled"
-        class="w-full px-3 py-1 rounded-lg border border-gray-600 bg-gray-100"
+        class="w-full px-3 py-1 rounded-md border border-gray-600 bg-gray-100"
       />
       <p v-if="errors.username" class="text-xs text-red-600">{{ errors.username }}</p>
     </div>
@@ -86,7 +86,7 @@ const update = <K extends keyof ProfileForm>(k: K, v: ProfileForm[K]) => {
         id="bio" 
         placeholder="tell smth about yourself" 
         :disabled="disabled"
-        class="w-full px-3 py-1 rounded-lg border border-gray-600 bg-gray-100"
+        class="w-full px-3 py-1 rounded-md border border-gray-600 bg-gray-100"
       ></textarea>
       <p v-if="errors.bio" class="text-xs text-red-600">{{ errors.bio }}</p>
     </div>
@@ -106,7 +106,7 @@ const update = <K extends keyof ProfileForm>(k: K, v: ProfileForm[K]) => {
         type="text" 
         placeholder="Winnipeg" 
         :disabled="disabled"
-        class="w-full px-3 py-1 rounded-lg border border-gray-600 bg-gray-100"
+        class="w-full px-3 py-1 rounded-md border border-gray-600 bg-gray-100"
       />
     </div>
 
@@ -123,7 +123,7 @@ const update = <K extends keyof ProfileForm>(k: K, v: ProfileForm[K]) => {
       type="text" 
       placeholder="MB" 
       :disabled="disabled"
-      class="w-full px-3 py-1 rounded-lg border border-gray-600 bg-gray-100"
+      class="w-full px-3 py-1 rounded-md border border-gray-600 bg-gray-100"
     />
 
     <label 
@@ -139,7 +139,7 @@ const update = <K extends keyof ProfileForm>(k: K, v: ProfileForm[K]) => {
       type="text" 
       placeholder="Canada" 
       :disabled="disabled"
-      class="w-full px-3 py-1 rounded-lg border border-gray-600 bg-gray-100"
+      class="w-full px-3 py-1 rounded-md border border-gray-600 bg-gray-100"
     />
   </div>
 </template>

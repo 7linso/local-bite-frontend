@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { useAuthStore } from '@/stores/useAuthStore'
 import { useToast } from 'vue-toast-notification'
-import { useSignIn } from '@/composables/signin/useSignIn'
+import { useSignIn } from '@/composables/auth/useSignIn'
 import { useRoute } from 'vue-router'
 import { onMounted } from 'vue'
 import SignInForm from '@/components/ui/forms/signin/SignInForm.vue'

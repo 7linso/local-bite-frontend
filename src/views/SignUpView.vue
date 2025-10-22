@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import { useAuthStore } from '@/stores/useAuthStore'
 import { useToast } from 'vue-toast-notification'
-import { useSignUp } from '@/composables/signin/useSignUp'
-import SignUpForm from '@/components/ui/forms/signup/SignUpForm.vue'
+import { useSignUp } from '@/composables/auth/useSignUp'
+import SignUpForm from '@/components/ui/forms/auth/SignUpForm.vue'
 
 const auth = useAuthStore()
 const toast = useToast()
