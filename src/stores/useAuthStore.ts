@@ -53,7 +53,6 @@ export const useAuthStore = defineStore('auth', () => {
         }
     }
 
-
     const updateProfilePic = async (payload: { profilePic: string }) => {
         const res = await apiAuth.updateProfilePic(payload)
         user.value = normalizeUser((res as any).user ?? res)

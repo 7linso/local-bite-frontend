@@ -1,16 +1,38 @@
 <script lang="ts" setup>
-import CreateRecipeForm from '@/components/ui/forms/recipe/CreateRecipeForm.vue';
+import RecipeForm from '@/components/ui/forms/recipe/RecipeForm.vue';
 import { useRecipe } from '@/composables/recipe/useRecipe';
+import { useToast } from 'vue-toast-notification';
+import { useAuthStore } from '@/stores/useAuthStore';
 
-const { errors, loading, form, onCreateRecipe } = useRecipe()
+const toast = useToast()
+const auth = useAuthStore()
+
+const { 
+    loading,
+    errors,
+    form,
+    addIngredientAfter,
+    removeIngredient,
+    addInstructionAfter,
+    removeInstruction,
+    preview,
+    handleImageSelect,
+    onCreateRecipe
+} = useRecipe(auth, toast)
 
 </script>
 
 <template>
-    <CreateRecipeForm
+    <RecipeForm
     :form="form"
     :loading="loading"
     :errors="errors"
+    :addIngredientAfter="addIngredientAfter"
+    :removeIngredient="removeIngredient"
+    :addInstructionAfter="addInstructionAfter"
+    :removeInstruction="removeInstruction"
+    :preview="preview"
+    :handleImageSelect="handleImageSelect"
     @submit="onCreateRecipe"
     />
 </template>

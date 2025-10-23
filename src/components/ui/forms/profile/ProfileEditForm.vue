@@ -4,14 +4,14 @@ import type { ProfileForm } from '@/lib/types'
 const props = defineProps<{
   form: ProfileForm,
   errors: Record<string, string>,
-  disabled?: boolean
+  disabled?: boolean,
+  update: (k: keyof ProfileForm, v: any) => void
 }>()
-const emit = defineEmits<{ (e:'update:form', v:ProfileForm): void }>()
 
-const update = <K extends keyof ProfileForm>(k: K, v: ProfileForm[K]) => {
-  const next = { ...props.form, [k]: v }
-  emit('update:form', next)
-}
+const emit = defineEmits<{ (e: 'update:form', k: keyof ProfileForm, v: any): void }>();
+
+const update = props.update
+
 </script>
 
 <template>

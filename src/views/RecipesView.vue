@@ -1,8 +1,11 @@
 <script lang="ts" setup>
-import { reactive, ref } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
 import MapView from '@/components/ui/MapView.vue'
 import { Search } from 'lucide-vue-next'
 import { RouterLink } from 'vue-router'
+import { useRecipe } from '@/composables/recipe/useRecipe'
+import { useToast } from 'vue-toast-notification'
+import { useAuthStore } from '@/stores/useAuthStore'
 
 // mock data
 const chips = ['Breakfast', 'Lunch', 'Dinner', 'Dessert', 'Vegan', 'BBQ', 'Soup', 'Salad', 'Drink']
@@ -38,6 +41,14 @@ function onWheelHorizontal(e: WheelEvent) {
         return
     el.scrollLeft += e.deltaY || e.deltaX || 0
 }
+
+const auth = useAuthStore()
+const toast = useToast()
+const {errors, loading, getAllRecipes, list} = useRecipe(auth, toast)
+
+onMounted(()=>{
+    getAllRecipes({limit: 20})
+})
 </script>
 
 <template>
@@ -124,7 +135,7 @@ function onWheelHorizontal(e: WheelEvent) {
 
         <div class="mt-4">
             <div class="rounded-lg border border-gray-200 p-3 text-sm text-gray-700">
-                list (paginated)
+                {{ list.length }}
             </div>
         </div>
     </section>

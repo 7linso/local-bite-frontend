@@ -110,6 +110,6 @@ export type RecipePayload = {
     ingredients: Ingredient[],
     instructions: string[],
     dishTypes: string[],
-    recipePic: string,
+    recipePic?: string,
     location: FormLocation
 }

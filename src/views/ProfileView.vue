@@ -10,48 +10,33 @@ import ProfilePicForm from '@/components/ui/forms/profile/ProfilePicForm.vue'
 import DeleteModal from '@/components/ui/modals/DeleteModal.vue'
 
 import { useProfileForm } from '@/composables/profile/useProfileForm'
-import { useProfilePicture } from '@/composables/profile/useProfilePicture'
 import { Check, Pencil, Trash, X } from 'lucide-vue-next'
 import { storeToRefs } from 'pinia'
 
 const auth = useAuthStore()
 const { user } = storeToRefs(auth)
-const router = useRouter()
-const $toast = useToast()
+const toast = useToast()
 
 const isEditing = ref(false)
-const deleteOpen = ref(false)
 
 const {
   form, 
   errors, 
   setAllFromUser, 
   validate, 
-  submitUpdate
-} = useProfileForm(auth, $toast, () => { isEditing.value = false })
-
-const {
+  submitUpdate,
   isUploading, 
   tempPreview, 
-  onPickProfilePic
-} = useProfilePicture(auth, $toast)
+  onPickProfilePic,
+  updateField,
+  deleteOpen,
+  handleDelete
+} = useProfileForm(auth, toast, () => { isEditing.value = false })
 
 watch(user, (u) => {
   if (u) setAllFromUser()
 }, { immediate: true })
 
-const handleDelete = async () => {
-  try {
-    await auth.deleteProfile()
-    await auth.signout()
-    $toast.success('Successfully deleted profile!', { position: 'top' })
-    router.replace('/signin')
-  } catch {
-    $toast.error('Failed to delete profile!', { position: 'top' })
-  } finally {
-    deleteOpen.value = false
-  }
-}
 </script>
 
 <template>
@@ -105,6 +90,7 @@ const handleDelete = async () => {
         v-model:form="form"
         :errors="errors"
         :disabled="!isEditing"
+        :update="updateField"
       />
 
       <div class="mt-5">
