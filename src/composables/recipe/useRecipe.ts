@@ -24,7 +24,9 @@ export const useRecipe = (
             resetErrors()
 
             const res = await recipes.getAllRecipes(params)
+
             list.value = res.items
+            console.log(list.value)
             nextCursor.value = res.nextCursor
         } catch (e: any) {
             errors.all = e?.data?.message ?? e.message
@@ -33,33 +35,10 @@ export const useRecipe = (
         }
     }
 
-    const UI_DISH_TYPES = [
+    const DISH_TYPES = [
         'Breakfast', 'Lunch', 'Dinner', 'Dessert', 'Vegan', 'BBQ', 'Soup', 'Salad', 'Drink'
     ] as const
-    type UiDishType = typeof UI_DISH_TYPES[number]
-
-    const ENUM_DISH_TYPES = [
-        'main', 'side', 'sauce', 'pastry', 'dessert', 'soup', 'drink', 'salad', 'other'
-    ] as const
-    type EnumDishType = typeof ENUM_DISH_TYPES[number]
-
-    const UI_TO_ENUM: Record<UiDishType, EnumDishType> = {
-        Breakfast: 'main',
-        Lunch: 'main',
-        Dinner: 'main',
-        Dessert: 'dessert',
-        Vegan: 'other',
-        BBQ: 'other',
-        Soup: 'soup',
-        Salad: 'salad',
-        Drink: 'drink',
-    }
-
-    const enumDishTypeSet = new Set<EnumDishType>(ENUM_DISH_TYPES)
-
-    function normalizeDishTypes(ui: string[]): EnumDishType[] {
-        return (ui ?? []).map(t => (UI_TO_ENUM as any)[t] ?? 'other')
-    }
+    type DishType = typeof DISH_TYPES[number]
 
     const form = reactive<RecipePayload>({
         title: "",
@@ -188,13 +167,6 @@ export const useRecipe = (
             })
         }
 
-        // Dish type
-        const normalized = normalizeDishTypes(form.dishTypes)
-        const invalid = normalized.filter(t => !enumDishTypeSet.has(t))
-        if (invalid.length) {
-            errors.dishTypes = 'One or more dish types are not allowed.'
-        }
-
         // Location
         const L = form.location
         const hasAll =
@@ -217,7 +189,7 @@ export const useRecipe = (
         try {
             const payload: RecipePayload = {
                 ...form,
-                dishTypes: normalizeDishTypes(form.dishTypes),
+                dishTypes: form.dishTypes,
                 location: {
                     locality: form.location.locality.trim(),
                     area: form.location.area.trim(),
