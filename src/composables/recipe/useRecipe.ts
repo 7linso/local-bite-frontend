@@ -15,26 +15,6 @@ export const useRecipe = (
     const loading = ref(false)
     const errors = reactive<Record<string, string>>({})
 
-    const list = ref<RecipeCardPreview[]>([])
-    const nextCursor = ref<String | null>(null)
-
-    const getAllRecipes = async (params?: Record<string, any>) => {
-        try {
-            loading.value = true
-            resetErrors()
-
-            const res = await recipes.getAllRecipes(params)
-
-            list.value= res.items
-            console.log(list.value)
-            nextCursor.value = res.nextCursor
-        } catch (e: any) {
-            errors.all = e?.data?.message ?? e.message
-        } finally {
-            loading.value = false
-        }
-    }
-
     const form = reactive<RecipePayload>({
         title: "",
         description: "",
@@ -52,8 +32,6 @@ export const useRecipe = (
             country: u?.defaultLocation?.country || ''
         },
     })
-
-
 
     const resetErrors = () => {
         for (const k of Object.keys(errors)) delete errors[k]
@@ -237,8 +215,6 @@ export const useRecipe = (
         addInstructionAfter,
         removeInstruction,
         onCreateRecipe,
-        validate,
-        getAllRecipes,
-        list
+        validate
     }
 }

@@ -1,17 +1,28 @@
 <script lang="ts" setup>
-import { onMounted, reactive, ref, computed, watch } from 'vue'
+import { onMounted, ref, computed, watch } from 'vue'
 import MapView from '@/components/ui/MapView.vue'
-import { useRecipe } from '@/composables/recipe/useRecipe'
-import { useToast } from 'vue-toast-notification'
-import { useAuthStore } from '@/stores/useAuthStore'
+import { useRecipeList } from '@/composables/recipe/useRecipeList'
 import SearchRecipesForm from '@/components/ui/recipe/SearchRecipesForm.vue'
 import RecipePreviewCard from '@/components/ui/recipe/RecipePreviewCard.vue'
 import { useRouter } from 'vue-router'
+import RecipeModal from '@/components/ui/modals/RecipeModal.vue'
 
-const auth = useAuthStore()
-const toast = useToast()
 const router=useRouter()
-const {loading, getAllRecipes, list} = useRecipe(auth, toast)
+const {errors, loading, getAllRecipes, list, geojson} = useRecipeList()
+
+const selectedRecipe = ref<any | null>(null)
+const modalX = ref(0)
+const modalY = ref(0)
+
+const openPreviewModal = (data: {
+    id: string
+    screenX: number
+    screenY: number
+}) => {
+    selectedRecipe.value = list.value.find(r => r._id === data.id) || null
+    modalX.value = data.screenX
+    modalY.value = data.screenY
+}
 
 const searchParams = ref({
     q: '',
@@ -58,7 +69,18 @@ onMounted(()=>{
 
 <template>
     <div class="relative h-[60vh] w-full">
-        <MapView />
+        <MapView 
+            :points="geojson"
+            @pointClick="openPreviewModal"
+        />
+
+        <RecipeModal
+            v-if="selectedRecipe"
+            :recipe="selectedRecipe"
+            :x="modalX"
+            :y="modalY"
+            @close="selectedRecipe = null"
+        />
     </div>
 
     <!-- search + add -->
@@ -68,10 +90,28 @@ onMounted(()=>{
             @search="runSearch"
         />
 
-        <!-- empty list fallback -->
-        <div v-if="list.length === 0" class="mt-10 text-center">
+        <!-- error state -->
+        <div v-if="errors.all" class="mt-10 text-center">
             <h3 class="text-lg font-semibold">
-                There are no recipes yet or there's an error getting them
+                An error occured while fetching results
+            </h3>
+            <p class="text-gray-600">
+                Sorry for inconvinience
+            </p>
+        </div>
+
+        <!-- loading state -->
+        <div
+            v-if="loading"
+            class="mt-10 text-center text-gray-500 text-sm"
+        >
+            Loading recipes...
+        </div>
+
+        <!-- empty list fallback -->
+        <div v-else-if="!loading && list.length === 0" class="mt-10 text-center">
+            <h3 class="text-lg font-semibold">
+                There are no recipes
             </h3>
             <p class="text-gray-600">
                 <span
@@ -90,7 +130,9 @@ onMounted(()=>{
                 :key="r._id"
                 @click="router.push(`/recipes/${r._id}`)"
             >
-                <RecipePreviewCard :recipe="r" />
+                <RecipePreviewCard 
+                    :recipe="r" 
+                />
             </div>
         </div>
 

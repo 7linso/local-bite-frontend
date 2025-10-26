@@ -2,12 +2,23 @@
 import { onMounted, onBeforeUnmount, ref, watch } from 'vue'
 import maplibregl, { Map } from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
-import type { FeatureCollection, Feature, Point, GeoJsonProperties } from 'geojson'
+import type { FeatureCollection, Point, GeoJsonProperties } from 'geojson'
 
 type LngLat = [number, number]
 
 const POINTS_SRC_ID = 'points-src'
 const POINTS_LAYER_ID = 'points-layer'
+
+const emit = defineEmits<{
+  (e: 'pointClick', 
+  data: {
+    id: string;
+    title: string;
+    feature: any;
+    screenX: number
+    screenY: number
+  }): void
+}>()
 
 const props = withDefaults(defineProps<{
   styleUrl?: string
@@ -30,7 +41,6 @@ const props = withDefaults(defineProps<{
   zoom: 2.2,
   pitch: 0,
   spinPeriodSec: null,
-  spinPitch: 0,
   autoPauseOnHidden: true,
   points: undefined,
   pointColor: '#b22222',
@@ -40,6 +50,7 @@ const props = withDefaults(defineProps<{
 
 const mapEl = ref<HTMLDivElement | null>(null)
 let map: Map | null = null
+const mapLoaded = ref(false)
 
 // --- spin state ---
 let rafId: number | null = null
@@ -47,7 +58,7 @@ let lastTs = 0
 let currLng = props.center[0]
 let baseLat = props.center[1]
 
-function setInteractionsEnabled(enabled: boolean) {
+const setInteractionsEnabled = (enabled: boolean) => {
   if (!map) return
   const m = map
   if (enabled) {
@@ -69,7 +80,7 @@ function setInteractionsEnabled(enabled: boolean) {
   }
 }
 
-function animate(ts: number) {
+const animate = (ts: number) => {
   if (!map || !props.spinPeriodSec) 
     return
   if (!lastTs) 
@@ -83,12 +94,12 @@ function animate(ts: number) {
   if (currLng < -180) currLng += 360
 
   map.setCenter([currLng, baseLat])
-  map.setPitch(props.spinPitch)
+  map.setPitch(0)
 
   rafId = requestAnimationFrame(animate)
 }
 
-function startSpin() {
+const startSpin = () => {
   if (!map) 
     return
   stopSpin()
@@ -96,12 +107,12 @@ function startSpin() {
   currLng = props.center[0]
   baseLat = props.center[1]
   map.setCenter([currLng, baseLat])
-  map.setPitch(props.spinPitch)
+  map.setPitch(0)
   setInteractionsEnabled(false)
   rafId = requestAnimationFrame(animate)
 }
 
-function stopSpin() {
+const stopSpin = () => {
   setInteractionsEnabled(true)
   if (rafId !== null) {
     cancelAnimationFrame(rafId)
@@ -109,12 +120,12 @@ function stopSpin() {
   }
 }
 
-function applyMode() {
+const applyMode = () => {
   if (props.spinPeriodSec) startSpin()
   else stopSpin()
 }
 
-function upsertPoints() {
+const upsertPoints = () => {
   if (!map) 
     return
   
@@ -149,10 +160,28 @@ function upsertPoints() {
         'circle-stroke-width': 1,
       },
     })
+    
+    map.on('click', POINTS_LAYER_ID, (e) => {
+      const  f = e.features?.[0]
+      if(!f)
+        return
+      
+      const {id, title} = f.properties || {}
+      const screenX = e.point.x
+      const screenY = e.point.y
+
+      emit('pointClick', {id, title, feature: f, screenX, screenY})
+    })
+    map.on('mouseenter', POINTS_LAYER_ID, () => 
+      map!.getCanvas().style.cursor = 'pointer'
+    )
+    map.on('mouseleave', POINTS_LAYER_ID, () => 
+      map!.getCanvas().style.cursor = ''
+    )
   }
 }
 
-function handleVisibility() {
+const handleVisibility = () => {
   if (!props.autoPauseOnHidden || !props.spinPeriodSec) 
     return
 
@@ -174,6 +203,7 @@ onMounted(() => {
   })
 
   map.on('load', () => {
+    mapLoaded.value = true
     currLng = props.center[0]
     baseLat = props.center[1]
 
@@ -202,6 +232,15 @@ onBeforeUnmount(() => {
   map?.remove()
   map = null
 })
+
+watch(
+  () => props.points,
+  () => {
+    if (!mapLoaded.value) return
+    upsertPoints()
+  },
+  { deep: true }
+)
 
 </script>
 

@@ -133,4 +133,8 @@ export type RecipeCardPreview = {
     dishTypes: string[],
     recipePic?: string,
     locationSnapshot: FormLocation
+    point: {
+        type: 'Point'
+        coordinates: [number, number]
+    }
 }
