@@ -4,7 +4,7 @@ import { useToast } from 'vue-toast-notification'
 import { useSignIn } from '@/composables/auth/useSignIn'
 import { useRoute } from 'vue-router'
 import { onMounted } from 'vue'
-import SignInForm from '@/components/ui/forms/auth/SignInForm.vue'
+import SignInForm from '@/components/ui/auth/SignInForm.vue'
 
 const auth = useAuthStore()
 const toast = useToast()

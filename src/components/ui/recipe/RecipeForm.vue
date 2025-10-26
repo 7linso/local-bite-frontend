@@ -22,7 +22,7 @@ const fileInput = ref<HTMLInputElement | null>(null)
 const openPicker = () => fileInput.value?.click()
 
 const dishOptions = ['Breakfast', 'Lunch', 'Dinner', 'Dessert', 'Vegan', 'BBQ', 'Soup', 'Salad', 'Drink']
-const measureOptions = ['g', 'kg', 'ml', 'l', 'tsp', 'tbsp', 'cup', 'pcs']
+const measureOptions = ['g', 'kg', 'ml', 'l', 'tsp', 'tbsp', 'cup', 'pcs', 'sl', 'pinch']
 
 </script>
 <template>

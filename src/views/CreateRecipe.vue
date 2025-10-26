@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import RecipeForm from '@/components/ui/forms/recipe/RecipeForm.vue';
+import RecipeForm from '@/components/ui/recipe/RecipeForm.vue';
 import { useRecipe } from '@/composables/recipe/useRecipe';
 import { useToast } from 'vue-toast-notification';
 import { useAuthStore } from '@/stores/useAuthStore';

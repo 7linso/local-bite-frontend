@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { ref, watch} from 'vue'
-import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toast-notification'
 
 import { useAuthStore } from '@/stores/useAuthStore'
 
-import ProfileEditForm from '@/components/ui/forms/profile/ProfileEditForm.vue'
-import ProfilePicForm from '@/components/ui/forms/profile/ProfilePicForm.vue'
+import ProfileEditForm from '@/components/ui/profile/ProfileEditForm.vue'
+import ProfilePicForm from '@/components/ui/profile/ProfilePicForm.vue'
 import DeleteModal from '@/components/ui/modals/DeleteModal.vue'
 
 import { useProfileForm } from '@/composables/profile/useProfileForm'

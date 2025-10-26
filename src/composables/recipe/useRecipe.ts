@@ -1,4 +1,4 @@
-import type { RecipePayload } from "@/lib/types"
+import type { RecipePayload, RecipeCardPreview } from "@/lib/types"
 import { reactive, ref } from "vue"
 import { useAuthStore } from "@/stores/useAuthStore"
 import { recipes } from "@/lib/api/recipes"
@@ -15,7 +15,7 @@ export const useRecipe = (
     const loading = ref(false)
     const errors = reactive<Record<string, string>>({})
 
-    const list = ref([])
+    const list = ref<RecipeCardPreview[]>([])
     const nextCursor = ref<String | null>(null)
 
     const getAllRecipes = async (params?: Record<string, any>) => {
@@ -25,7 +25,7 @@ export const useRecipe = (
 
             const res = await recipes.getAllRecipes(params)
 
-            list.value = res.items
+            list.value= res.items
             console.log(list.value)
             nextCursor.value = res.nextCursor
         } catch (e: any) {
@@ -34,11 +34,6 @@ export const useRecipe = (
             loading.value = false
         }
     }
-
-    const DISH_TYPES = [
-        'Breakfast', 'Lunch', 'Dinner', 'Dessert', 'Vegan', 'BBQ', 'Soup', 'Salad', 'Drink'
-    ] as const
-    type DishType = typeof DISH_TYPES[number]
 
     const form = reactive<RecipePayload>({
         title: "",

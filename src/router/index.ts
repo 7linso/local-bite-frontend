@@ -6,7 +6,8 @@ const About = () => import('@/views/AboutView.vue')
 const SignUp = () => import('@/views/SignUpView.vue')
 const SignIn = () => import('@/views/SignInView.vue')
 const Profile = () => import('@/views/ProfileView.vue')
-const Recipes = () => import('@/views/RecipesView.vue')
+const RecipesList = () => import('@/views/RecipesListView.vue')
+const Recipe = () => import('@/views/RecipeView.vue')
 const CreateRecipe = () => import('@/views/CreateRecipe.vue')
 
 const router = createRouter({
@@ -28,7 +29,8 @@ const router = createRouter({
       path: '/recipes',
       component: () => import('@/components/layout/Shell.vue'),
       children: [
-        { path: '', name: 'recipesList', component: Recipes },
+        { path: '', name: 'recipesList', component: RecipesList },
+        { path: ':id', name: 'recipe', component: Recipe, props: true },
         { path: 'create', name: 'recipesCreate', component: CreateRecipe, meta: { requiresAuth: true } },
       ],
     },

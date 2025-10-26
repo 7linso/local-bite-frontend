@@ -50,7 +50,7 @@ export type ApiUser = {
     updatedAt?: string;
     profilePic?: string | null;
     favs?: string[];
-    defaultLocationId: string,
+    defaultLocationId: string;
     defaultLocation?: {
         _id?: string;
         locality: string;
@@ -63,7 +63,7 @@ export type ApiUser = {
 
 export type SigninPayload = {
     identifier: string;
-    password: string
+    password: string;
 };
 
 export type SignupPayload = {
@@ -94,15 +94,27 @@ export type ApiResponse<T> = T | { user: T };
 export type RawUser = any;
 
 export type AllCoords = {
-    count: number,
+    count: number;
     coords: [number, number][]
 }
 
 export type Ingredient = {
-    ingredient: string,
-    amount: number,
-    measure: string
+    ingredient: string;
+    amount: number;
+    measure: string;
 }
+
+export interface Recipe {
+    _id: string;
+    title: string;
+    recipePic: string;
+    description: string;
+    ingredients: Ingredient[];
+    instructions: string[];
+    dishTypes: string[];
+    location: FormLocation;
+}
+
 
 export type RecipePayload = {
     title: string,
@@ -112,4 +124,13 @@ export type RecipePayload = {
     dishTypes: string[],
     recipePic?: string,
     location: FormLocation
+}
+
+export type RecipeCardPreview = {
+    _id: string,
+    title: string,
+    description: string,
+    dishTypes: string[],
+    recipePic?: string,
+    locationSnapshot: FormLocation
 }

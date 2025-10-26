@@ -144,6 +144,5 @@ const onWheelHorizontal = (e: WheelEvent) => {
                 </button>
             </div>
         </div>
-
         
 </template>

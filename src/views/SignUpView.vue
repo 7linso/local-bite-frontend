@@ -2,7 +2,7 @@
 import { useAuthStore } from '@/stores/useAuthStore'
 import { useToast } from 'vue-toast-notification'
 import { useSignUp } from '@/composables/auth/useSignUp'
-import SignUpForm from '@/components/ui/forms/auth/SignUpForm.vue'
+import SignUpForm from '@/components/ui/auth/SignUpForm.vue'
 
 const auth = useAuthStore()
 const toast = useToast()
