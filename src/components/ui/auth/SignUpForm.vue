@@ -13,8 +13,7 @@ const emit = defineEmits<{(e: 'submit'): void}>()
 <template>
     <section class="flex items-center justify-center mt-10 ">
     <form @submit.prevent="emit('submit')"
-      class="w-[90%] sm:w-[400px] md:w-[500px] lg:w-[600px]
-             border rounded-md border-gray-900 p-5 bg-white shadow-sm text-sm"
+      class="w-[90%] sm:w-[400px] md:w-[500px] lg:w-[600px] bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100 p-5"
     >
       <div
         class="grid gap-y-1 md:gap-y-3 gap-x-4

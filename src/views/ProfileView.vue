@@ -42,20 +42,20 @@ watch(user, (u) => {
   <section class="flex items-center justify-center mt-10">
     <form
       @submit.prevent="submitUpdate(validate)"
-      class="w-[90%] sm:w-[400px] md:w-[500px] lg:w-[600px] border rounded-lg border-gray-900 p-5 bg-white shadow-sm text-sm"
+      class="w-[90%] sm:w-[400px] md:w-[500px] lg:w-[600px] bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100 p-5"
     >
       <div class="relative mb-5 flex justify-center">
         <button
           v-if="!isEditing"
           type="button"
           @click="isEditing = true"
-          class="absolute right-0 top-0 -mt-2 -mr-2 text-gray-500 hover:text-gray-700 z-10"
+          class="absolute right-0 top-0 text-gray-500 hover:text-gray-700 z-10"
         >
           <Pencil/>
         </button>
         <div 
           v-else 
-          class="absolute right-0 top-0 -mt-2 -mr-2 flex items-center gap-2 z-10"
+          class="absolute right-0 top-0 flex items-center gap-2 z-10"
         >
           <button 
             type="button" 

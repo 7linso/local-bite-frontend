@@ -17,22 +17,22 @@ const {
     removeInstruction,
     preview,
     handleImageSelect,
-    onCreateRecipe
+    createRecipe
 } = useRecipe(auth, toast)
 
 </script>
 
 <template>
     <RecipeForm
-    :form="form"
-    :loading="loading"
-    :errors="errors"
-    :addIngredientAfter="addIngredientAfter"
-    :removeIngredient="removeIngredient"
-    :addInstructionAfter="addInstructionAfter"
-    :removeInstruction="removeInstruction"
-    :preview="preview"
-    :handleImageSelect="handleImageSelect"
-    @submit="onCreateRecipe"
+        :form="form"
+        :loading="loading"
+        :errors="errors"
+        :addIngredientAfter="addIngredientAfter"
+        :removeIngredient="removeIngredient"
+        :addInstructionAfter="addInstructionAfter"
+        :removeInstruction="removeInstruction"
+        :preview="preview"
+        :handleImageSelect="handleImageSelect"
+        @submit="createRecipe"
     />
 </template>

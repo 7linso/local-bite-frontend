@@ -29,7 +29,7 @@ const measureOptions = ['g', 'kg', 'ml', 'l', 'tsp', 'tbsp', 'cup', 'pcs', 'sl',
   <section class="flex items-center justify-center my-10">
 
     <div class="w-[90%] sm:w-[400px] md:w-[500px] lg:w-[600px]">
-      <div class="border rounded-md border-gray-900 bg-white shadow-sm overflow-hidden">
+      <div class="w-[90%] sm:w-[400px] md:w-[500px] lg:w-[600px] bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100 ">
 
         <!-- recipe pic -->
         <div class="relative w-full bg-gray-200 aspect-[16/9]">

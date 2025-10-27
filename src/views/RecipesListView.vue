@@ -80,6 +80,7 @@ onMounted(()=>{
             :x="modalX"
             :y="modalY"
             @close="selectedRecipe = null"
+            @openRecipe="router.push(`/recipes/${selectedRecipe._id}`)"
         />
     </div>
 

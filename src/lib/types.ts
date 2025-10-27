@@ -105,16 +105,27 @@ export type Ingredient = {
 }
 
 export interface Recipe {
-    _id: string;
-    title: string;
-    recipePic: string;
-    description: string;
-    ingredients: Ingredient[];
-    instructions: string[];
-    dishTypes: string[];
-    location: FormLocation;
+    _id: string
+    title: string
+    description: string
+    recipePic: string
+    ingredients: Ingredient[]
+    instructions: string[]
+    point: {
+        type: 'Point'
+        coordinates: [number, number]
+    }
+    locationSnapshot: FormLocation
+    locationId?: string
+    authorId: {
+        _id: string
+        fullname: string
+        username: string
+    }
+    dishTypes: string[]
+    createdAt: string
+    updatedAt: string
 }
-
 
 export type RecipePayload = {
     title: string,

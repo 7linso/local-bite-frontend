@@ -1,4 +1,4 @@
-import type { RecipePayload, RecipeCardPreview } from "@/lib/types"
+import type { RecipePayload, Recipe } from "@/lib/types"
 import { reactive, ref } from "vue"
 import { useAuthStore } from "@/stores/useAuthStore"
 import { recipes } from "@/lib/api/recipes"
@@ -15,6 +15,10 @@ export const useRecipe = (
     const loading = ref(false)
     const errors = reactive<Record<string, string>>({})
 
+    // recipe for detail page
+    const recipe = ref<Recipe | null>(null)
+
+    // form for creating new
     const form = reactive<RecipePayload>({
         title: "",
         description: "",
@@ -37,7 +41,7 @@ export const useRecipe = (
         for (const k of Object.keys(errors)) delete errors[k]
     }
 
-    // image 
+    // image
     const preview = ref<string | null>(null)
 
     const handleImageSelect = (e: Event) => {
@@ -47,10 +51,7 @@ export const useRecipe = (
 
         const allowed = ['image/jpeg', 'image/png', 'image/webp']
         if (!allowed.includes(file.type)) {
-            toast.error(
-                'Use allowed format: jpeg, png, webp!',
-                { position: 'top' }
-            )
+            toast.error('Use allowed format: jpeg, png, webp!', { position: 'top' })
             target.value = ''
             return
         }
@@ -65,40 +66,41 @@ export const useRecipe = (
     }
 
     // ingredients
-    const addIngredientAfter = (i: number) =>
+    const addIngredientAfter = (i: number) => {
         form.ingredients.splice(i + 1, 0, {
             ingredient: "",
             amount: 0,
             measure: ""
         })
+    }
 
     const removeIngredient = (i: number) => {
-        if (form.ingredients.length > 1)
+        if (form.ingredients.length > 1) {
             form.ingredients.splice(i, 1)
+        }
     }
 
     // instructions
-    const addInstructionAfter = (i: number) =>
+    const addInstructionAfter = (i: number) => {
         form.instructions.splice(i + 1, 0, "")
+    }
 
     const removeInstruction = (i: number) => {
-        if (form.instructions.length > 1)
+        if (form.instructions.length > 1) {
             form.instructions.splice(i, 1)
+        }
     }
 
     const validate = () => {
         resetErrors()
 
-        // Title
         const title = form.title.trim()
         if (!title) errors.title = 'Title is required.'
         else if (title.length > 100) errors.title = 'Title should be 100 characters max.'
 
-        // Description
         if (form.description.trim().length > 500)
             errors.description = 'Description should be 500 characters max.'
 
-        // Ingredients
         if (!Array.isArray(form.ingredients) || form.ingredients.length === 0) {
             errors.ingredients = 'At least one ingredient is required.'
         } else {
@@ -124,7 +126,6 @@ export const useRecipe = (
             }
         }
 
-        // Instructions 
         if (!Array.isArray(form.instructions) || form.instructions.length === 0) {
             errors.instructions = 'At least one instruction is required.'
         } else {
@@ -140,12 +141,12 @@ export const useRecipe = (
             })
         }
 
-        // Location
         const L = form.location
         const hasAll =
             (L.locality ?? '').trim() &&
             (L.area ?? '').trim() &&
             (L.country ?? '').trim()
+
         if (!hasAll) {
             errors.location = 'All location fields are required (locality, area, country).'
         }
@@ -153,7 +154,7 @@ export const useRecipe = (
         return Object.keys(errors).length === 0
     }
 
-    const onCreateRecipe = async () => {
+    const createRecipe = async () => {
         if (!validate()) {
             toast.error('Check the highlighted fields.', { position: 'top' })
             return
@@ -181,7 +182,13 @@ export const useRecipe = (
             onSaved?.()
             router.replace('/recipes')
         } catch (e: any) {
-            const msg = e?.response?.data?.message ?? e?.friendlyMessage ?? e?.data?.message ?? e?.message ?? 'Failed to add recipe'
+            const msg =
+                e?.response?.data?.message ??
+                e?.friendlyMessage ??
+                e?.data?.message ??
+                e?.message ??
+                'Failed to add recipe'
+
             if (msg.toLowerCase().includes('title')) {
                 errors.title = msg
             } else if (msg.startsWith('Description')) {
@@ -204,17 +211,34 @@ export const useRecipe = (
         }
     }
 
+    const getRecipe = async (id: string) => {
+        try {
+            loading.value = true
+            resetErrors()
+
+            const res = await recipes.getRecipe(id)
+
+            recipe.value = res
+        } catch (e: any) {
+            errors.all = e?.data?.message ?? e.message
+        } finally {
+            loading.value = false
+        }
+    }
+
     return {
         loading,
         errors,
         form,
+        recipe,
         preview,
         handleImageSelect,
         addIngredientAfter,
         removeIngredient,
         addInstructionAfter,
         removeInstruction,
-        onCreateRecipe,
-        validate
+        createRecipe,
+        getRecipe,
+        validate,
     }
 }

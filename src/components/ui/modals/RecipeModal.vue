@@ -8,7 +8,10 @@ const props = defineProps<{
     y: number
 }>()
 
-const emit = defineEmits<{ (e: 'close'): void }>()
+const emit = defineEmits<{
+    (e: 'close'): void 
+    (e: 'openRecipe'): void
+}>()
 
 const MODAL_W = 220
 const MODAL_H = 200
@@ -75,7 +78,7 @@ const top = computed(() => {
 
             <button
                 class="mt-3 w-full text-xs font-medium text-white bg-gray-900 rounded-lg py-1.5 hover:bg-gray-800"
-                @click="emit('close')"
+                @click="emit('openRecipe')"
             >
                 View details
             </button>
