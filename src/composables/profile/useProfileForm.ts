@@ -186,7 +186,7 @@ export const useProfileForm = (
 
     const deleteOpen = ref(false)
 
-    const handleDelete = async () => {
+    const deleteAccount = async () => {
         try {
             await auth.deleteProfile()
             await auth.signout()
@@ -211,6 +211,6 @@ export const useProfileForm = (
         submitUpdate,
         updateField,
         deleteOpen,
-        handleDelete
+        deleteAccount
     }
 }

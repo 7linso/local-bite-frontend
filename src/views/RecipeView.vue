@@ -1,8 +1,10 @@
 <script lang="ts" setup>
+import DeleteModal from '@/components/ui/modals/DeleteModal.vue';
 import { useRecipe } from '@/composables/recipe/useRecipe';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { Pencil, Trash } from 'lucide-vue-next';
 import { onMounted, watch } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { useRouter } from 'vue-router';
 import { useToast } from 'vue-toast-notification';
 
 const props = defineProps<{
@@ -13,7 +15,7 @@ const router = useRouter()
 const auth = useAuthStore()
 const toast = useToast()
 
-const { recipe, getRecipe } = useRecipe(auth, toast)
+const { recipe, getRecipe, errors, deleteOpen, deleteRecipe } = useRecipe(auth, toast)
 
 const formatDate = (d: string) => {
   const date = new Date(d)
@@ -55,16 +57,30 @@ watch(() => props.id, (newId) => {
                         No Image
                     </div>
 
-                    <div class="absolute bottom-2 right-2 bg-white/80 text-gray-800 text-xs px-2 py-1 rounded-md" >
+                    <div class="absolute bottom-2 right-2 bg-white/80 text-gray-800 text-xs px-2 py-1 rounded-md cursor-pointer" >
                         by {{ recipe.authorId?.username || 'unknown' }}
                     </div>
                 </div>
 
                 <!-- content -->
                 <div class="p-4">
-                    <h3 class="text-lg font-semibold mb-1 line-clamp-1">
-                        {{ recipe.title }}
-                    </h3>
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold mb-1 line-clamp-1">
+                            {{ recipe.title }}
+                        </h3>
+
+                        <div v-if="auth.isAuth && recipe?.authorId && recipe.authorId._id === auth.user?._id"
+                            class="flex items-center gap-2"
+                        >
+                            <button >
+                                <Pencil :size="16" class="cursor-pointer" />
+                            </button>
+                            <button @click="deleteOpen=true">
+                                <Trash :size="16" class="text-red-500 cursor-pointer" />
+                        </button>
+                        </div >
+                    </div>
+
                     <p class="text-gray-600 text-sm mb-3 line-clamp-2">
                         {{ recipe.description }}
                     </p>
@@ -84,10 +100,28 @@ watch(() => props.id, (newId) => {
 
                     <!-- ingredients  -->
                     <div class="text-sm text-gray-500 mb-3">
-                        <span class="font-medium">
-                            Ingredients:
-                        </span>
-                        {{ recipe.ingredients.map(i => i.ingredient)}}
+                        <ul >
+                            <h3 class="font-medium">Ingredients:</h3>
+                        
+                            <li v-for="i in recipe.ingredients"
+                                class="list-disc ml-5"
+                            >
+                                {{ i.amount }} {{ i.measure }} of {{ i.ingredient }} 
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- instructions  -->
+                    <div class="text-sm text-gray-500 mb-3">
+                        <ul >
+                            <h3 class="font-medium">Instructions:</h3>
+                        
+                            <li v-for="i in recipe.instructions"
+                                class="list-decimal ml-5"
+                            >
+                                {{ i }} 
+                            </li>
+                        </ul>
                     </div>
 
                     <!-- location -->
@@ -101,7 +135,7 @@ watch(() => props.id, (newId) => {
                 </div>
             </article>
 
-            <article v-else
+            <article v-if="errors.all"
                 class="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100"
             >
                <div class="h-60 flex flex-col items-center justify-center text-center space-y-2">
@@ -120,4 +154,10 @@ watch(() => props.id, (newId) => {
             </article>
         </div>
     </section>
+
+    <DeleteModal
+        @confirm="recipe && deleteRecipe(recipe._id)"
+        @cancel="deleteOpen=false"    
+        :open="deleteOpen"
+    />
 </template>

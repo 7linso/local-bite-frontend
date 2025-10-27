@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+
 const { open } = defineProps<{
   open: boolean
 }>()
@@ -16,7 +17,7 @@ defineEmits<{
     >
         <div class="bg-white rounded-lg p-5 shadow max-w-sm w-[90%]">
             <p class="text-gray-800 mb-4">
-                Are you sure you want to delete your account? This action is irreversible!
+                Are you sure? This action is irreversible!
             </p>
             <div class="flex justify-end gap-3">
                 <button class="border px-3 py-1 rounded" @click="$emit('cancel')">Cancel</button>

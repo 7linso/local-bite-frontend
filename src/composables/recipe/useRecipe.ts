@@ -14,6 +14,7 @@ export const useRecipe = (
 
     const loading = ref(false)
     const errors = reactive<Record<string, string>>({})
+    const deleteOpen = ref<boolean>(false)
 
     // recipe for detail page
     const recipe = ref<Recipe | null>(null)
@@ -226,6 +227,16 @@ export const useRecipe = (
         }
     }
 
+    const deleteRecipe = async (id: string) => {
+        try {
+            await recipes.deleteRecipe(id)
+            toast.success('Successfully deleted recipe!', { position: 'top' })
+            router.push('/recipes')
+        } catch (e: any) {
+            toast.error('Failed to delete recipe!', { position: 'top' })
+        }
+    }
+
     return {
         loading,
         errors,
@@ -240,5 +251,7 @@ export const useRecipe = (
         createRecipe,
         getRecipe,
         validate,
+        deleteOpen,
+        deleteRecipe
     }
 }

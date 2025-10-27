@@ -29,7 +29,7 @@ const {
   onPickProfilePic,
   updateField,
   deleteOpen,
-  handleDelete
+  deleteAccount
 } = useProfileForm(auth, toast, () => { isEditing.value = false })
 
 watch(user, (u) => {
@@ -107,6 +107,6 @@ watch(user, (u) => {
   <DeleteModal 
     :open="deleteOpen" 
     @cancel="deleteOpen = false" 
-    @confirm="handleDelete" 
+    @confirm="deleteAccount" 
   />
 </template>

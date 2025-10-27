@@ -28,7 +28,6 @@ const measureOptions = ['g', 'kg', 'ml', 'l', 'tsp', 'tbsp', 'cup', 'pcs', 'sl',
 <template>
   <section class="flex items-center justify-center my-10">
 
-    <div class="w-[90%] sm:w-[400px] md:w-[500px] lg:w-[600px]">
       <div class="w-[90%] sm:w-[400px] md:w-[500px] lg:w-[600px] bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100 ">
 
         <!-- recipe pic -->
@@ -260,7 +259,6 @@ const measureOptions = ['g', 'kg', 'ml', 'l', 'tsp', 'tbsp', 'cup', 'pcs', 'sl',
           </div>
         </form>
       </div>
-    </div>
   </section>
 </template>
 

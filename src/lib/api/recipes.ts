@@ -7,5 +7,8 @@ export const recipes = {
     getAllRecipes: (params?: Record<string, any>) =>
         api.get<any>('/recipes', { params }),
 
-    getRecipe: (p: string) => api.get<Recipe>(`/recipes/${p}`) 
+    getRecipe: (p: string) => api.get<Recipe>(`/recipes/${p}`),
+
+    deleteRecipe: (p: string) => api.delete(`/recipes/${p}`)
+
 }
