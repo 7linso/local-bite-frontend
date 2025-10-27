@@ -25,7 +25,7 @@ const props = withDefaults(defineProps<{
   center?: LngLat
   zoom?: number
   pitch?: number
-  /** if set map carousel), not interactive */
+  /** if set - map carousel, not interactive */
   spinPeriodSec?: number | null
   spinPitch?: number
   autoPauseOnHidden?: boolean

@@ -23,7 +23,7 @@ const props = defineProps<{
             />
             <div
                 v-else
-                class="w-full h-full flex items-center justify-center  text-gray-500"
+                class="w-full h-full flex items-center justify-center text-gray-500"
             >
                 no image
             </div>
@@ -34,7 +34,7 @@ const props = defineProps<{
                 {{ recipe.title }}
             </h2>
 
-            <p class="text-sm text-gray-600 line-clamp-2 mt-1">
+            <p class="text-sm text-gray-600 line-clamp-2 mt-1 truncate">
                 {{ recipe.description || 'No description' }}
             </p>
 
@@ -43,7 +43,7 @@ const props = defineProps<{
                     <span
                         v-for="t in recipe.dishTypes"
                         :key="t"
-                        class="rounded-full border border-gray-400 px-2 py-[2px] leading-none mr-1"
+                        class="rounded-full border border-gray-400 px-2 py-0.5 leading-none mr-1"
                     >
                         {{ t }}
                     </span>

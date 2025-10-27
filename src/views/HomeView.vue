@@ -13,7 +13,24 @@ const geojson = ref<FeatureCollection<Point>>({
   features: []
 })
 
+const mapDiv = ref<HTMLDivElement | null>(null)
+const mapVisible = ref<boolean>(false)
+const mapReady = ref(false)
+
+const handleMapLoaded = () => {
+  mapReady.value = true
+}
+
 onMounted(async () => {
+  const obs = new IntersectionObserver(([entry]) => {
+    if(entry?.isIntersecting){
+      mapVisible.value = true
+      obs.disconnect()
+    }
+  }, {threshold: 0.1})
+
+  if(mapDiv.value) obs.observe(mapDiv.value)
+
   try {
     const res = await locations.getAllLocCoords()
     const coords: [number, number][] = res.coords
@@ -28,6 +45,7 @@ onMounted(async () => {
     }
 
     geojson.value = fc
+    
   } catch (e) {
     console.log(e)
     toast.error('Cannot fetch locations!', { position: 'top' })
@@ -36,8 +54,13 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="relative h-[60vh] w-full">
-    <MapView 
+  <div ref="mapDiv" class="relative h-[60vh] w-full">
+    <div
+      v-if="!mapVisible || !mapReady"
+      class="absolute inset-0 w-full h-full rounded-2xl overflow-hidden bg-gray-200 animate-pulse"
+    ></div>
+
+    <MapView v-if="mapVisible"
         :spinPeriodSec="160" 
         :points="geojson"
     />

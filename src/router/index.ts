@@ -8,7 +8,8 @@ const SignIn = () => import('@/views/SignInView.vue')
 const Profile = () => import('@/views/ProfileView.vue')
 const RecipesList = () => import('@/views/RecipesListView.vue')
 const Recipe = () => import('@/views/RecipeView.vue')
-const CreateRecipe = () => import('@/views/CreateRecipe.vue')
+const CreateRecipe = () => import('@/views/CreateRecipeView.vue')
+const EditRecipe = () => import('@/views/EditRecipeView.vue')
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -32,6 +33,7 @@ const router = createRouter({
         { path: '', name: 'recipesList', component: RecipesList },
         { path: ':id', name: 'recipe', component: Recipe, props: true },
         { path: 'create', name: 'recipesCreate', component: CreateRecipe, meta: { requiresAuth: true } },
+        { path: ':id/edit', name: 'recipesEdit', component: EditRecipe, props: true, meta: { requiresAuth: true } },
       ],
     },
     {

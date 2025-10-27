@@ -26,6 +26,11 @@ const formatDate = (d: string) => {
   })
 }
 
+const editRecipe = () => {
+    if (recipe.value?._id) 
+        router.push(`/recipes/${recipe.value._id}/edit`)
+}
+
 onMounted(() => {
     getRecipe(props.id)
 })
@@ -57,7 +62,9 @@ watch(() => props.id, (newId) => {
                         No Image
                     </div>
 
-                    <div class="absolute bottom-2 right-2 bg-white/80 text-gray-800 text-xs px-2 py-1 rounded-md cursor-pointer" >
+                    <div class="absolute bottom-2 right-2 bg-white/80 text-gray-800 text-xs px-2 py-1 rounded-md" 
+                        :class="{ 'cursor-pointer': recipe.authorId?.username }"
+                    >
                         by {{ recipe.authorId?.username || 'unknown' }}
                     </div>
                 </div>
@@ -72,7 +79,7 @@ watch(() => props.id, (newId) => {
                         <div v-if="auth.isAuth && recipe?.authorId && recipe.authorId._id === auth.user?._id"
                             class="flex items-center gap-2"
                         >
-                            <button >
+                            <button @click="editRecipe">
                                 <Pencil :size="16" class="cursor-pointer" />
                             </button>
                             <button @click="deleteOpen=true">
@@ -92,7 +99,7 @@ watch(() => props.id, (newId) => {
                         <span
                             v-for="type in recipe.dishTypes"
                             :key="type"
-                            class="bg-green-100 text-green-700 text-xs font-medium px-2 py-0.5 rounded-full"
+                            class="bg-green-100 text-green-700 text-xs font-medium px-2 py-1 rounded-full"
                         >
                         {{ type }}
                         </span>
@@ -100,11 +107,11 @@ watch(() => props.id, (newId) => {
 
                     <!-- ingredients  -->
                     <div class="text-sm text-gray-500 mb-3">
-                        <ul >
+                        <ul>
                             <h3 class="font-medium">Ingredients:</h3>
                         
                             <li v-for="i in recipe.ingredients"
-                                class="list-disc ml-5"
+                                class="list-disc ml-5 py-0.5"
                             >
                                 {{ i.amount }} {{ i.measure }} of {{ i.ingredient }} 
                             </li>
@@ -117,7 +124,7 @@ watch(() => props.id, (newId) => {
                             <h3 class="font-medium">Instructions:</h3>
                         
                             <li v-for="i in recipe.instructions"
-                                class="list-decimal ml-5"
+                                class="list-decimal ml-5 py-0.5"
                             >
                                 {{ i }} 
                             </li>

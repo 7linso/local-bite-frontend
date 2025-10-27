@@ -1,5 +1,5 @@
 import type { RecipePayload, Recipe } from "@/lib/types"
-import { reactive, ref } from "vue"
+import { reactive, ref, computed } from "vue"
 import { useAuthStore } from "@/stores/useAuthStore"
 import { recipes } from "@/lib/api/recipes"
 import { useRouter } from "vue-router"
@@ -213,13 +213,29 @@ export const useRecipe = (
     }
 
     const getRecipe = async (id: string) => {
+        console.log('getRecipe called with id:', id)
         try {
             loading.value = true
             resetErrors()
 
             const res = await recipes.getRecipe(id)
+            console.log('fetched recipe:', res)
 
             recipe.value = res
+
+            form.title = res.title
+            form.description = res.description
+            form.ingredients = res.ingredients
+            form.instructions = res.instructions
+            form.dishTypes = res.dishTypes
+            form.recipePic = res.recipePic
+            form.location = {
+                locality: res.locationSnapshot.locality,
+                area: res.locationSnapshot.area,
+                country: res.locationSnapshot.country,
+            }
+
+            preview.value = res.recipePic || null
         } catch (e: any) {
             errors.all = e?.data?.message ?? e.message
         } finally {
@@ -237,6 +253,69 @@ export const useRecipe = (
         }
     }
 
+
+    const editRecipe = async (id: string) => {
+        if (!id) {
+            toast.error('Recipe ID is missing.', { position: 'top' })
+            return
+        }
+
+        if (!validate()) {
+            toast.error('Check the highlighted fields.', { position: 'top' })
+            return
+        }
+
+        try {
+            const payload: RecipePayload = {
+                ...form,
+                dishTypes: form.dishTypes,
+                location: {
+                    locality: form.location.locality.trim(),
+                    area: form.location.area.trim(),
+                    country: form.location.country.trim(),
+                },
+                instructions: form.instructions.map(s => s.trim()),
+                ingredients: form.ingredients.map(x => ({
+                    ingredient: x.ingredient.trim(),
+                    amount: x.amount,
+                    measure: (x.measure ?? '').trim(),
+                })),
+            }
+
+            await recipes.editRecipe(payload, id)
+            toast.success('Success!', { position: 'top' })
+            onSaved?.()
+            router.replace(`/recipes/${id}`)
+
+        } catch (e: any) {
+            const msg =
+                e?.response?.data?.message ??
+                e?.friendlyMessage ??
+                e?.data?.message ??
+                e?.message ??
+                'Failed to add recipe'
+
+            if (msg.toLowerCase().includes('title')) {
+                errors.title = msg
+            } else if (msg.startsWith('Description')) {
+                errors.description = msg
+            } else if (msg.includes('ingredients')) {
+                errors.ingredients = msg
+            } else if (msg.toLowerCase().includes('dish type')) {
+                errors.dishTypes = msg
+            } else if (
+                msg.startsWith('Missing required location fields') ||
+                msg === 'Unknown country name.' ||
+                msg === 'Failed to geocode.' ||
+                msg.toLowerCase().includes('location')
+            ) {
+                errors.location = msg
+            } else {
+                errors.form = msg
+            }
+            toast.error(msg, { position: 'top' })
+        }
+    }
     return {
         loading,
         errors,
@@ -252,6 +331,7 @@ export const useRecipe = (
         getRecipe,
         validate,
         deleteOpen,
-        deleteRecipe
+        deleteRecipe,
+        editRecipe
     }
 }
