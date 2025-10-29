@@ -2,7 +2,7 @@
 import { onMounted, onBeforeUnmount, ref, watch } from 'vue'
 import maplibregl, { Map } from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
-import type { FeatureCollection, Point, GeoJsonProperties } from 'geojson'
+import type { FeatureCollection, Point, Feature, GeoJsonProperties } from 'geojson'
 
 type LngLat = [number, number]
 
@@ -10,14 +10,7 @@ const POINTS_SRC_ID = 'points-src'
 const POINTS_LAYER_ID = 'points-layer'
 
 const emit = defineEmits<{
-  (e: 'pointClick', 
-  data: {
-    id: string;
-    title: string;
-    feature: any;
-    screenX: number
-    screenY: number
-  }): void
+  (e: 'pointClick', data: { lat: number; lng: number }): void
 }>()
 
 const props = withDefaults(defineProps<{
@@ -162,19 +155,18 @@ const upsertPoints = () => {
     })
     
     map.on('click', POINTS_LAYER_ID, (e) => {
-      const  f = e.features?.[0]
-      if(!f)
-        return
-      
-      const {id, title} = f.properties || {}
-      const screenX = e.point.x
-      const screenY = e.point.y
+      const f = e.features?.[0] as Feature<Point> | undefined
+      if (!f) return
 
-      emit('pointClick', {id, title, feature: f, screenX, screenY})
+      const [lng = 0, lat = 0] = f.geometry.coordinates
+
+      emit('pointClick', { lat, lng })
     })
+
     map.on('mouseenter', POINTS_LAYER_ID, () => 
       map!.getCanvas().style.cursor = 'pointer'
     )
+
     map.on('mouseleave', POINTS_LAYER_ID, () => 
       map!.getCanvas().style.cursor = ''
     )
@@ -248,5 +240,5 @@ watch(
   <div 
     ref="mapEl" 
     class="w-full h-[60vh] rounded-2xl overflow-hidden"
-  />
+  ></div>
 </template>

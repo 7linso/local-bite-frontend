@@ -1,15 +1,13 @@
 <script lang="ts" setup>
 
+import type { RecipeCardPreview } from '@/lib/types';
 import RecipePreviewCard from './RecipePreviewCard.vue';
-import { useRecipeListStore } from '@/stores/useRecipeListStore';
-import { storeToRefs } from 'pinia';
 
-const recipeStore = useRecipeListStore()
-const { 
-    errors, 
-    loading, 
-    list, 
-} = storeToRefs(recipeStore)
+const props = defineProps<{
+    recipes: RecipeCardPreview[]
+    errors: Record<string, any>
+    loading: boolean
+}>()
 
 const emit = defineEmits<{
     (e: 'create'): void
@@ -38,7 +36,7 @@ const emit = defineEmits<{
         </div>
 
         <!-- empty -->
-        <div v-else-if="list.length === 0" class="mt-10 text-center">
+        <div v-else-if="recipes.length === 0" class="mt-10 text-center">
             <h3 class="text-lg font-semibold">
                 There are no recipes
             </h3>
@@ -55,7 +53,7 @@ const emit = defineEmits<{
         <!-- list -->
         <div v-else class="my-4 space-y-5">
             <div
-                v-for="r in list"
+                v-for="r in recipes"
                 :key="r._id"
                 @click="emit('openRecipe', (r._id))"
                 class="cursor-pointer"

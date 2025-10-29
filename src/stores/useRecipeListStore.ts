@@ -21,10 +21,23 @@ export const useRecipeListStore = defineStore('recipes', () => {
         q: '',
         country: 'All',
         dishTypes: new Set(),
+        nearLat: null,
+        nearLng: null,
+        maxKm: null
     })
+
+    const pointRecipes = ref<RecipeCardPreview[]>([])
+    const pointLoading = ref(false)
+    const pointError = reactive<Record<string, string>>({})
+    const pointCoords = ref<{ lat: number; lng: number } | null>(null)
+    const pointOpen = ref(false)
 
     const resetErrors = () => {
         for (const k of Object.keys(errors)) delete errors[k]
+    }
+
+    const resetPointError = () => {
+        for (const k of Object.keys(pointError)) delete pointError[k]
     }
 
     const updateFilterField = <K extends keyof SearchRecipesFilters>(
@@ -44,7 +57,7 @@ export const useRecipeListStore = defineStore('recipes', () => {
         }
     }
 
-    const fetchFirstPage = async (params?: Record<string, any>) => {
+    const fetchFirstPage = async () => {
         try {
             loading.value = true
             resetErrors()
@@ -120,6 +133,33 @@ export const useRecipeListStore = defineStore('recipes', () => {
         }
     }
 
+    const fetchPointRecipes = async (lat: number, lng: number) => {
+        try {
+            pointLoading.value = true
+            resetPointError()
+            pointCoords.value = { lat, lng }
+
+            const res = await recipes.getAllRecipes({
+                limit: 10,
+                q: currentFilters.value.q,
+                country: currentFilters.value.country === 'All' ? '' : currentFilters.value.country,
+                dishTypes: [...currentFilters.value.dishTypes].join(','),
+                nearLat: lat,
+                nearLng: lng,
+                maxKm: 1
+            })
+
+            pointRecipes.value = res.items
+            pointOpen.value = true
+        } catch (e: any) {
+            pointError.list = e?.data?.message ?? e.message ?? 'Failed to load recipes for this location'
+            pointRecipes.value = []
+            pointOpen.value = true
+        } finally {
+            pointLoading.value = false
+        }
+    }
+
     return {
         loading,
         errors,
@@ -130,6 +170,12 @@ export const useRecipeListStore = defineStore('recipes', () => {
         geojson,
         fetchFirstPage,
         fetchNextPage,
-        updateFilterField
+        updateFilterField,
+        fetchPointRecipes,
+        pointCoords,
+        pointError,
+        pointLoading,
+        pointOpen,
+        pointRecipes
     }
 })

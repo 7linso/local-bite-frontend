@@ -4,7 +4,7 @@ import MapView from '@/components/ui/MapView.vue'
 import { useRecipeListStore } from '@/stores/useRecipeListStore'
 import SearchRecipesForm from '@/components/ui/recipe/SearchRecipesForm.vue'
 import { useRouter } from 'vue-router'
-import RecipeModal from '@/components/ui/modals/RecipeModal.vue'
+import MapDesktopModal from '@/components/ui/modals/MapDesktopModal.vue'
 import RecipesList from '@/components/ui/recipe/RecipesList.vue'
 import { storeToRefs } from 'pinia'
 
@@ -15,28 +15,20 @@ defineOptions({
 const router=useRouter()
 
 const recipeStore = useRecipeListStore()
-const { 
-    errors, 
-    loading, 
+const {
     currentFilters, 
-    list, 
     geojson, 
-    hasNextPage 
+    hasNextPage,
+    list,
+    errors,
+    loading,
 } = storeToRefs(recipeStore)
-const { fetchFirstPage, fetchNextPage } = recipeStore
+const { fetchFirstPage, fetchNextPage, fetchPointRecipes} = recipeStore
 
-const selectedRecipe = ref<any | null>(null)
-const modalX = ref(0)
-const modalY = ref(0)
-
-const openPreviewModal = (data: {
-    id: string
-    screenX: number
-    screenY: number
-}) => {
-    selectedRecipe.value = list.value.find(r => r._id === data.id) || null
-    modalX.value = data.screenX
-    modalY.value = data.screenY
+const openRecipesByLocationModal = (
+    data: { lat: number; lng: number }
+) => {
+    fetchPointRecipes(data.lat, data.lng)
 }
 
 const debounceTimer = ref<number | null>(null)
@@ -50,9 +42,9 @@ watch(currentFilters, () => {
     }, { deep: true }
 )
 
-onMounted(() => {
-    fetchFirstPage()
-})
+// onMounted(() => {
+//     fetchFirstPage()
+// })
 
 onActivated(() => {
     fetchFirstPage()
@@ -63,16 +55,11 @@ onActivated(() => {
     <div class="relative h-[60vh] w-full">
         <MapView 
             :points="geojson"
-            @pointClick="openPreviewModal"
+            @pointClick="openRecipesByLocationModal"
         />
 
-        <RecipeModal
-            v-if="selectedRecipe"
-            :recipe="selectedRecipe"
-            :x="modalX"
-            :y="modalY"
-            @close="selectedRecipe = null"
-            @openRecipe="router.push(`/recipes/${selectedRecipe._id}`)"
+        <MapDesktopModal
+            @openRecipe="(id: string) => router.push(`/recipes/${id}`)"
         />
     </div>
 
@@ -80,7 +67,10 @@ onActivated(() => {
     <section class="mx-auto mt-4 mb-10 w-[90%] sm:w-[400px] md:w-[500px] lg:w-[600px]">
         <SearchRecipesForm/>
 
-        <RecipesList
+        <RecipesList 
+            :recipes="list"
+            :errors="errors"
+            :loading="loading"
             @openRecipe="(id: string) => router.push(`/recipes/${id}`)"
             @create="router.push(`/recipes/create`)"
         />
