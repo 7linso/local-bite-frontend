@@ -10,7 +10,11 @@ import { RouterView } from 'vue-router'
     <Navbar />
 
     <main class="flex-1">                    
-      <RouterView/>
+      <RouterView v-slot="{ Component }">
+          <keep-alive include="RecipesListPage">
+              <component :is="Component" />
+          </keep-alive>
+      </RouterView>
     </main>
 
     <Footer />                               

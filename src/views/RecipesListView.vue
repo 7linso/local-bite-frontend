@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { onMounted, ref, computed, watch } from 'vue'
+import { onMounted, ref, onActivated, watch, defineOptions } from 'vue'
 import MapView from '@/components/ui/MapView.vue'
 import { useRecipeListStore } from '@/stores/useRecipeListStore'
 import SearchRecipesForm from '@/components/ui/recipe/SearchRecipesForm.vue'
@@ -7,6 +7,10 @@ import { useRouter } from 'vue-router'
 import RecipeModal from '@/components/ui/modals/RecipeModal.vue'
 import RecipesList from '@/components/ui/recipe/RecipesList.vue'
 import { storeToRefs } from 'pinia'
+
+defineOptions({
+    name: 'RecipesListPage'
+})
 
 const router=useRouter()
 
@@ -46,7 +50,11 @@ watch(currentFilters, () => {
     }, { deep: true }
 )
 
-onMounted(()=>{
+onMounted(() => {
+    fetchFirstPage()
+})
+
+onActivated(() => {
     fetchFirstPage()
 })
 </script>
