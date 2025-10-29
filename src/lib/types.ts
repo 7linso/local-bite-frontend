@@ -149,3 +149,9 @@ export type RecipeCardPreview = {
         coordinates: [number, number]
     }
 }
+
+export type SearchRecipesFilters = {
+    q: string
+    country: string
+    dishTypes: Set<string>
+}

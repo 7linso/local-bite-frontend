@@ -1,14 +1,25 @@
 <script lang="ts" setup>
 import { onMounted, ref, computed, watch } from 'vue'
 import MapView from '@/components/ui/MapView.vue'
-import { useRecipeList } from '@/composables/recipe/useRecipeList'
+import { useRecipeListStore } from '@/stores/useRecipeListStore'
 import SearchRecipesForm from '@/components/ui/recipe/SearchRecipesForm.vue'
-import RecipePreviewCard from '@/components/ui/recipe/RecipePreviewCard.vue'
 import { useRouter } from 'vue-router'
 import RecipeModal from '@/components/ui/modals/RecipeModal.vue'
+import RecipesList from '@/components/ui/recipe/RecipesList.vue'
+import { storeToRefs } from 'pinia'
 
 const router=useRouter()
-const {errors, loading, getAllRecipes, list, geojson} = useRecipeList()
+
+const recipeStore = useRecipeListStore()
+const { 
+    errors, 
+    loading, 
+    currentFilters, 
+    list, 
+    geojson, 
+    hasNextPage 
+} = storeToRefs(recipeStore)
+const { fetchFirstPage, fetchNextPage } = recipeStore
 
 const selectedRecipe = ref<any | null>(null)
 const modalX = ref(0)
@@ -24,46 +35,19 @@ const openPreviewModal = (data: {
     modalY.value = data.screenY
 }
 
-const searchParams = ref({
-    q: '',
-    country: 'All',
-    dishTypes: new Set<string>(),
-})
-
-const searchPayload = computed(() => ({
-    q: searchParams.value.q,
-    country: searchParams.value.country,
-    dishTypes: [...searchParams.value.dishTypes]
-}))
-
 const debounceTimer = ref<number | null>(null)
 
-const runSearch = (payload?: {
-    q: string
-    country: string
-    dishTypes: string[]
-}) => {
-    const query = payload ?? searchPayload.value
-
-    getAllRecipes({
-        limit: 20,
-        q: query.q,
-        country: query.country === 'All' ? '' : query.country,
-        dishTypes: query.dishTypes.join(',')
-    })
-}
-
-watch( searchPayload, ()=> {
-    if(debounceTimer.value !== null)
-        clearTimeout(debounceTimer.value)
-
-    debounceTimer.value = window.setTimeout(() => {
-        runSearch()
-    }, 400)
-}, {deep: true})
+watch(currentFilters, () => {
+        if (debounceTimer.value !== null) 
+            clearTimeout(debounceTimer.value)
+        debounceTimer.value = window.setTimeout(() => {
+            fetchFirstPage()
+        }, 400)
+    }, { deep: true }
+)
 
 onMounted(()=>{
-    getAllRecipes({limit: 20})
+    fetchFirstPage()
 })
 </script>
 
@@ -85,58 +69,20 @@ onMounted(()=>{
     </div>
 
     <!-- search + add -->
-    <section class="mx-auto mt-4 w-[90%] sm:w-[400px] md:w-[500px] lg:w-[600px]">
-        <SearchRecipesForm
-            v-model:searchParams="searchParams"
-            @search="runSearch"
+    <section class="mx-auto mt-4 mb-10 w-[90%] sm:w-[400px] md:w-[500px] lg:w-[600px]">
+        <SearchRecipesForm/>
+
+        <RecipesList
+            @openRecipe="(id: string) => router.push(`/recipes/${id}`)"
+            @create="router.push(`/recipes/create`)"
         />
-
-        <!-- error state -->
-        <div v-if="errors.all" class="mt-10 text-center">
-            <h3 class="text-lg font-semibold">
-                An error occured while fetching results
-            </h3>
-            <p class="text-gray-600">
-                Sorry for inconvinience
-            </p>
+        
+        <div v-show="hasNextPage" class="flex justify-center items-center gap-2 my-6">
+            <button @click="fetchNextPage"
+                class="inline-flex w-full md:w-auto items-center justify-center rounded-xl border border-gray-800 px-4 py-2 font-medium  hover:bg-gray-900 hover:text-white focus-visible:outline-none  focus-visible:ring-2 focus-visible:ring-gray-800 transition" >
+                More
+            </button>
         </div>
-
-        <!-- loading state -->
-        <div
-            v-if="loading"
-            class="mt-10 text-center text-gray-500 text-sm"
-        >
-            Loading recipes...
-        </div>
-
-        <!-- empty list fallback -->
-        <div v-else-if="!loading && list.length === 0" class="mt-10 text-center">
-            <h3 class="text-lg font-semibold">
-                There are no recipes
-            </h3>
-            <p class="text-gray-600">
-                <span
-                @click="router.push('/recipes/create')"
-                class="underline cursor-pointer"
-                >
-                Add some recipes
-                </span> or come back later
-            </p>
-        </div>
-
-        <!-- list -->
-        <div v-else class="my-4 space-y-5">
-            <div
-                v-for="r in list"
-                :key="r._id"
-                @click="router.push(`/recipes/${r._id}`)"
-            >
-                <RecipePreviewCard 
-                    :recipe="r" 
-                />
-            </div>
-        </div>
-
     </section>
 </template>
 
