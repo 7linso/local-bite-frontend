@@ -1,10 +1,11 @@
 <script lang="ts" setup>
-import { onMounted, ref, onActivated, watch, defineOptions } from 'vue'
+import { onMounted, onUnmounted, ref, onActivated, watch, defineOptions } from 'vue'
 import MapView from '@/components/ui/MapView.vue'
 import { useRecipeListStore } from '@/stores/useRecipeListStore'
 import SearchRecipesForm from '@/components/ui/recipe/SearchRecipesForm.vue'
 import { useRouter } from 'vue-router'
 import MapDesktopModal from '@/components/ui/modals/MapDesktopModal.vue'
+import MapMobileModal from '@/components/ui/modals/MapMobileModal.vue'
 import RecipesList from '@/components/ui/recipe/RecipesList.vue'
 import { storeToRefs } from 'pinia'
 
@@ -24,6 +25,12 @@ const {
     loading,
 } = storeToRefs(recipeStore)
 const { fetchFirstPage, fetchNextPage, fetchPointRecipes} = recipeStore
+
+const isMdPlusScreen = ref<boolean>(false)
+
+const checkScreen = () => {
+    isMdPlusScreen.value = window.innerWidth >= 768
+}
 
 const openRecipesByLocationModal = (
     data: { lat: number; lng: number }
@@ -48,6 +55,12 @@ watch(currentFilters, () => {
 
 onActivated(() => {
     fetchFirstPage()
+    checkScreen()
+    window.addEventListener('resize', checkScreen)
+})
+
+onUnmounted(() => {
+    window.removeEventListener('resize', checkScreen)
 })
 </script>
 
@@ -58,9 +71,13 @@ onActivated(() => {
             @pointClick="openRecipesByLocationModal"
         />
 
-        <MapDesktopModal
+        <MapDesktopModal v-if="isMdPlusScreen"
             @openRecipe="(id: string) => router.push(`/recipes/${id}`)"
-        />
+        /> 
+
+        <MapMobileModal v-else
+            @openRecipe="(id: string) => router.push(`/recipes/${id}`)"
+        /> 
     </div>
 
     <!-- search + add -->
