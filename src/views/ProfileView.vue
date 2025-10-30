@@ -42,7 +42,7 @@ watch(user, (u) => {
   <section class="flex items-center justify-center mt-10">
     <form
       @submit.prevent="submitUpdate(validate)"
-      class="w-[90%] sm:w-[400px] md:w-[500px] lg:w-[600px] bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100 p-5"
+      class="w-[90%] sm:w-[400px] md:w-[500px] lg:w-[600px] bg-white rounded-2xl shadow-sm overflow-hidden border border-amber-900 p-5"
     >
       <div class="relative mb-5 flex justify-center">
         <button

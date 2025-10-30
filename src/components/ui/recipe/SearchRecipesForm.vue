@@ -47,7 +47,7 @@ const onWheelHorizontal = (e: WheelEvent) => {
                         :value="currentFilters.q"
                         type="text"
                         placeholder="Search by name…"
-                        class="w-full rounded-xl border border-gray-300 px-3 py-2 pr-10 shadow-sm focus:border-gray-500 focus:outline-none"
+                        class="w-full rounded-xl bg-white border border-amber-900 px-3 py-2 pr-10 shadow-sm focus:outline-amber-900"
                         @input="updateFilterField('q', ($event.target as HTMLInputElement).value)"
                     />
                     <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
@@ -64,7 +64,7 @@ const onWheelHorizontal = (e: WheelEvent) => {
                     @change="updateFilterField('country', ($event.target as HTMLSelectElement).value)"
                         id="country"
                         :value="currentFilters.country"
-                        class="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 shadow-sm focus:border-gray-500 focus:outline-none"
+                        class="appearance-none w-full rounded-xl border border-amber-900 bg-white px-3 py-2 shadow-sm focus:outline-amber-900"
                     >
                         <option
                             v-for="c in countries"
@@ -81,11 +81,7 @@ const onWheelHorizontal = (e: WheelEvent) => {
                     <RouterLink
                         to="/recipes/create"
                         role="button"
-                        class="inline-flex w-full md:w-auto items-center justify-center
-                            rounded-xl border border-gray-800 px-4 py-2 font-medium
-                            hover:bg-gray-900 hover:text-white
-                            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-800
-                            transition"
+                        class="inline-flex w-full md:w-auto items-center justify-center bg-white rounded-xl border border-amber-800 px-4 py-2 font-medium hover:bg-amber-900 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-800 transition"
                     >
                         + Add recipe
                     </RouterLink>
@@ -102,10 +98,10 @@ const onWheelHorizontal = (e: WheelEvent) => {
                     v-for="t in chips"
                     :key="t"
                     @click="toggleChip(t)"
-                    class="rounded-full border px-3 py-1 text-sm transition"
+                    class="rounded-full border px-3 py-1 text-sm transition border-amber-900"
                     :class="currentFilters.dishTypes.has(t)
-                    ? 'border-gray-900 bg-gray-900 text-white'
-                    : 'border-gray-300 bg-white text-gray-800 hover:border-gray-500'"
+                    ? ' bg-amber-900 text-white'
+                    : ' bg-white text-gray-800'"
                 >
                     {{ t }}
                 </button>

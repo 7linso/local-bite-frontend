@@ -13,7 +13,7 @@ const emit = defineEmits<{(e: 'submit'): void}>()
 <template>
     <section class="flex items-center justify-center mt-10 ">
     <form @submit.prevent="emit('submit')"
-      class="w-[90%] sm:w-[400px] md:w-[500px] lg:w-[600px] bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100 p-5"
+      class="w-[90%] sm:w-[400px] md:w-[500px] lg:w-[600px] bg-white rounded-2xl shadow-sm overflow-hidden border border-amber-900 p-5"
     >
       <div
         class="grid gap-y-1 md:gap-y-3 gap-x-4
@@ -102,7 +102,7 @@ const emit = defineEmits<{(e: 'submit'): void}>()
         <button
           :disabled="loading"
           type="submit"
-          class="px-4 py-1.5 rounded-md border border-gray-800 hover:bg-gray-100 transition-colors"
+          class="border-amber-800 px-4 py-2 font-medium hover:bg-amber-900 hover:text-white rounded-md border transition-colors text-amber-950"
         >
           Sign up
         </button>

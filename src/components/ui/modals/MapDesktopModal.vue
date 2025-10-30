@@ -20,13 +20,16 @@ const emit = defineEmits<{
 <template>
     <div
         v-if="pointOpen"
-        class="fixed inset-0 z-30 "
+        class="fixed inset-0 z-30"
         @click="pointOpen = false"
     >
-        <aside class="hidden md:block fixed top-0 right-0 h-full w-full max-w-[360px] bg-white shadow-xl border-l border-gray-200 z-40 transition-transform duration-300"
+        <aside class="hidden md:block fixed top-0 right-0 h-full w-full max-w-[360px] shadow-xl bg-[#ffeedd]  z-40 transition-transform duration-300"
             :class="pointOpen ? 'translate-x-0' : 'translate-x-full'"
         >
-            <div class="overflow-y-auto p-4 h-[calc(100%-56px)]">
+            <h2 class="px-4 mt-4 font-semibold text-4xl text-gray-900">
+                Explore
+            </h2>
+            <div class="overflow-y-auto px-4 h-[calc(100%-56px)] mb-10">
                 <RecipesList 
                     :recipes="pointRecipes"
                     :errors="pointError"

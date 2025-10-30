@@ -38,7 +38,7 @@ onUnmounted(() => { document.body.style.overflow = '' })
             leave-from-class="translate-y-0"
             leave-to-class="translate-y-full"
         >
-            <aside class="fixed bottom-0 left-0 right-0 z-40 h-1/2 bg-white border border-gray-200 rounded-t-4xl shadow-2xl flex flex-col overflow-hidden"
+            <aside class="fixed bottom-0 left-0 right-0 z-40 h-1/2 bg-white border border-amber-900 rounded-t-4xl shadow-2xl flex flex-col overflow-hidden"
                 @click.stop                                  
             >
                 <div class="min-h-0 grow overflow-y-auto overscroll-contain p-4 [--webkit-overflow-scrolling:touch]"

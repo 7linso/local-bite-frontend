@@ -9,14 +9,14 @@ const auth = useAuthStore()
 const { isAuth } = storeToRefs(auth)
 
 const onSignout = async() => {
+  await router.replace({ name: 'signin', query: { redirect: '/' } })
   await auth.signout()
-  router.replace('/')
 }
 </script>
 
 
 <template>
-  <header class="border-b p-4">
+  <header class="border-b border-amber-900 p-4 bg-[#f7dec5] text-amber-950">
     <nav class="flex items-center justify-between max-w-[1000px] mx-auto w-full">
       <RouterLink to="/" class="font-bold text-lg">local-bite</RouterLink>
 

@@ -8,11 +8,11 @@ const props = defineProps<{
 
 <template>
     <article @click="$emit('click')"
-        class="cursor-pointer w-full border border-none shadow-lg rounded-xl flex bg-white text-gray-900 overflow-hidden"
+        class="cursor-pointer w-full shadow-lg  flex bg-white text-gray-900 overflow-hidden rounded-xl border border-amber-800"
     >
         <!-- image -->
         <div
-            class="bg-gray-200 border-r border-none flex"
+            class="bg-white border-r border-none flex"
             style="width: 8rem; min-height: 6rem;"
         >   
             <img v-if="recipe && recipe.recipePic"
@@ -29,13 +29,13 @@ const props = defineProps<{
 
         <div class="flex-1 min-w-0 p-3">
             <h2 class="font-semibold text-base text-gray-900 truncate"
-                :class="{ 'h-4 w-24 bg-gray-200 rounded animate-pulse': !recipe }"
+                :class="{ 'h-4 w-24 bg-white rounded animate-pulse': !recipe }"
             >
                 {{ recipe ? recipe.title : '' }}
             </h2>
 
             <p class="text-sm text-gray-600 line-clamp-2 mt-1 truncate"
-                :class="{ 'h-4 w-36 bg-gray-200 rounded animate-pulse': !recipe }"
+                :class="{ 'h-4 w-36 bg-white rounded animate-pulse': !recipe }"
             >
                 {{ recipe ? recipe.description || 'No description' : '' }}
             </p>
@@ -54,9 +54,9 @@ const props = defineProps<{
                     <div v-else
                         class="flex gap-2"
                     >
-                        <div class="h-3 w-10 bg-gray-200 rounded animate-pulse"></div>
-                        <div class="h-3 w-12 bg-gray-200 rounded animate-pulse"></div>
-                        <div class="h-3 w-8 bg-gray-200 rounded animate-pulse"></div>
+                        <div class="h-3 w-10 bg-white rounded animate-pulse"></div>
+                        <div class="h-3 w-12 bg-white rounded animate-pulse"></div>
+                        <div class="h-3 w-8 bg-white rounded animate-pulse"></div>
                     </div>
                 </div>
 
@@ -69,7 +69,7 @@ const props = defineProps<{
                 </p>
 
                 <div v-else
-                    class="h-3 w-40 bg-gray-200 rounded animate-pulse"
+                    class="h-3 w-40 bg-white rounded animate-pulse"
                 ></div>
             </div>
         </div>

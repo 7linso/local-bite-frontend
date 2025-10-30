@@ -46,7 +46,7 @@ watch(() => props.id, (newId) => {
         <div class="w-[90%] sm:w-[400px] md:w-[500px] lg:w-[600px]">
 
             <article v-if="recipe"
-                class="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100"
+                class="bg-white rounded-2xl shadow-sm overflow-hidden border border-amber-900"
             >
                 <!-- Image -->
                 <div class="relative w-full h-56 bg-gray-100">

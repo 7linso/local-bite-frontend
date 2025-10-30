@@ -252,9 +252,11 @@ const measureOptions = ['g', 'kg', 'ml', 'l', 'tsp', 'tbsp', 'cup', 'pcs', 'sl',
           </div>
 
           <div class="flex flex-col items-center justify-center mt-4 gap-2">
-            <button :disabled="loading" type="submit"
-                    class="px-4 py-1.5 rounded-md border border-gray-800 hover:bg-gray-100 transition-colors">
-              Share
+            <button :disabled="loading" 
+              type="submit"
+              class="border-amber-800 px-4 py-2 font-medium hover:bg-amber-900 hover:text-white rounded-md border transition-colors text-amber-950"
+            >
+              Submit
             </button>
           </div>
         </form>
@@ -279,14 +281,14 @@ const measureOptions = ['g', 'kg', 'ml', 'l', 'tsp', 'tbsp', 'cup', 'pcs', 'sl',
 
 /* Dropdown options: white with blue accents */
 :deep(.multiselect__option) { @apply bg-white text-gray-800; }
-:deep(.multiselect__option--highlight) { @apply bg-white text-blue-600; }
-:deep(.multiselect__option--selected) { @apply bg-blue-50 text-blue-600; }
-:deep(.multiselect__option--selected.multiselect__option--highlight) { @apply bg-blue-100 text-blue-700; }
+:deep(.multiselect__option--highlight) { @apply bg-white text-amber-600; }
+:deep(.multiselect__option--selected) { @apply bg-white text-amber-600; }
+:deep(.multiselect__option--selected.multiselect__option--highlight) { @apply bg-blue-100 text-amber-700; }
 /* Remove the “Press enter to select” tag */
 :deep(.multiselect__option--highlight::after) { content: none; }
 
 /* Chips (if ever used in multiple mode elsewhere) */
-:deep(.multiselect__tag) { @apply bg-blue-100 text-blue-700 border border-blue-300; }
-:deep(.multiselect__tag-icon:hover) { @apply bg-blue-200 text-blue-800; }
+:deep(.multiselect__tag) { @apply bg-white text-amber-700 border border-gray-300; }
+:deep(.multiselect__tag-icon:hover) { @apply bg-white text-amber-800; }
 </style>
 

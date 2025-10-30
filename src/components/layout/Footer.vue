@@ -2,7 +2,7 @@
 </script>
 
 <template>
-  <footer class="border-t p-4">
+  <footer class="border-t border-amber-900 p-4 bg-[#f7dec5] text-amber-950">
     <nav class="flex items-center justify-between max-w-[1000px] mx-auto w-full">
       <RouterLink to="/">local-bite</RouterLink>
 
