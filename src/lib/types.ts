@@ -123,6 +123,8 @@ export interface Recipe {
         username: string
     }
     dishTypes: string[]
+    likeCount: number
+    isLiked: boolean
     createdAt: string
     updatedAt: string
 }
@@ -148,6 +150,8 @@ export type RecipeCardPreview = {
         type: 'Point'
         coordinates: [number, number]
     }
+    likeCount: number
+    isLiked: boolean
 }
 
 export type SearchRecipesFilters = {

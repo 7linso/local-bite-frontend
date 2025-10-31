@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { onMounted, onUnmounted, ref, onActivated, watch, defineOptions } from 'vue'
+import { onUnmounted, ref, onActivated, watch, defineOptions } from 'vue'
 import MapView from '@/components/ui/MapView.vue'
 import { useRecipeListStore } from '@/stores/useRecipeListStore'
 import SearchRecipesForm from '@/components/ui/recipe/SearchRecipesForm.vue'
@@ -8,6 +8,7 @@ import MapDesktopModal from '@/components/ui/modals/MapDesktopModal.vue'
 import MapMobileModal from '@/components/ui/modals/MapMobileModal.vue'
 import RecipesList from '@/components/ui/recipe/RecipesList.vue'
 import { storeToRefs } from 'pinia'
+import { recipes } from '@/lib/api/recipes'
 
 defineOptions({
     name: 'RecipesListPage'
@@ -23,6 +24,7 @@ const {
     list,
     errors,
     loading,
+    pointRecipes
 } = storeToRefs(recipeStore)
 const { fetchFirstPage, fetchNextPage, fetchPointRecipes} = recipeStore
 
@@ -36,6 +38,35 @@ const openRecipesByLocationModal = (
     data: { lat: number; lng: number }
 ) => {
     fetchPointRecipes(data.lat, data.lng)
+}
+
+const applyLikeLocal = (id: string, next: boolean) => {
+    const likeOne = (arr: any[]) => {
+        const it = arr.find(x => x._id === id)
+        if (it) {
+            const delta = next ? 1 : -1
+            it.isLiked = next
+            it.likeCount = Math.max(0, (it.likeCount ?? 0) + delta)
+        }
+    }
+    likeOne(list.value)
+    likeOne(pointRecipes.value)
+}
+
+const onToggleLike = async({ id, next }: { id: string; next: boolean }) => {
+    const prev = list.value.find(x => x._id === id)
+    const prevState = prev ? { isLiked: prev.isLiked, likeCount: prev.likeCount } : null
+
+    applyLikeLocal(id, next)
+
+    try {
+        await (next ? recipes.likeRecipe(id) : recipes.dislikeRecipe(id))
+    } catch (e) {
+        if (prev && prevState) {
+            prev.isLiked = prevState.isLiked
+            prev.likeCount = prevState.likeCount
+        }
+    }
 }
 
 const debounceTimer = ref<number | null>(null)
@@ -53,8 +84,8 @@ watch(currentFilters, () => {
 //     fetchFirstPage()
 // })
 
-onActivated(() => {
-    fetchFirstPage()
+onActivated(async () => {
+    await fetchFirstPage()
     checkScreen()
     window.addEventListener('resize', checkScreen)
 })
@@ -73,10 +104,12 @@ onUnmounted(() => {
 
         <MapDesktopModal v-if="isMdPlusScreen"
             @openRecipe="(id: string) => router.push(`/recipes/${id}`)"
+            @toggle-like="onToggleLike"
         /> 
 
         <MapMobileModal v-else
             @openRecipe="(id: string) => router.push(`/recipes/${id}`)"
+            @toggle-like="onToggleLike"
         /> 
     </div>
 
@@ -90,6 +123,7 @@ onUnmounted(() => {
             :loading="loading"
             @openRecipe="(id: string) => router.push(`/recipes/${id}`)"
             @create="router.push(`/recipes/create`)"
+            @toggle-like="onToggleLike"
         />
         
         <div v-show="hasNextPage" class="flex justify-center items-center gap-2 my-6">

@@ -6,6 +6,8 @@ import { Pencil, Trash } from 'lucide-vue-next';
 import { onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useToast } from 'vue-toast-notification';
+import { Heart } from 'lucide-vue-next';
+import { recipes } from '@/lib/api/recipes';
 
 const props = defineProps<{
     id: string
@@ -18,17 +20,37 @@ const toast = useToast()
 const { recipe, getRecipe, errors, deleteOpen, deleteRecipe } = useRecipe(auth, toast)
 
 const formatDate = (d: string) => {
-  const date = new Date(d)
-  return date.toLocaleDateString(undefined, {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  })
+    const date = new Date(d)
+    return date.toLocaleDateString(undefined, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+    })
 }
 
 const editRecipe = () => {
     if (recipe.value?._id) 
         router.push(`/recipes/${recipe.value._id}/edit`)
+}
+
+const handleLikeRecipe = async () => {
+    if (!recipe.value?._id) return
+
+    const prevLiked = recipe.value.isLiked
+    const prevCount = recipe.value.likeCount
+    
+    try {
+        if (prevLiked)
+            await recipes.dislikeRecipe(recipe.value._id)
+        else
+            await recipes.likeRecipe(recipe.value._id)
+
+        recipe.value.isLiked = !prevLiked
+        recipe.value.likeCount = prevLiked ? prevCount-1 : prevCount+1
+    } catch (err) {
+        recipe.value.isLiked = prevLiked
+        console.error(err)
+    }
 }
 
 onMounted(() => {
@@ -62,7 +84,17 @@ watch(() => props.id, (newId) => {
                         No Image
                     </div>
 
-                    <div class="absolute bottom-2 right-2 bg-white/80 text-gray-800 text-xs px-2 py-1 rounded-md" 
+                    <div class="absolute top-2 right-2 bg-white/70 border-white/90 border-2 px-2 py-1 rounded-md flex items-center gap-1">
+                        {{ recipe.likeCount }}
+                        <Heart
+                            @click="handleLikeRecipe"
+                            :size="20"
+                            :fill="recipe?.isLiked ? 'currentColor' : 'none'"
+                            class="text-amber-900 cursor-pointer"
+                        />
+                    </div>
+
+                    <div class="absolute bottom-2 right-2 bg-white/80 text-gray-800 text-xs px-2 py-1 rounded-md border-white/90 border-2" 
                         :class="{ 'cursor-pointer': recipe.authorId?.username }"
                     >
                         by {{ recipe.authorId?.username || 'unknown' }}

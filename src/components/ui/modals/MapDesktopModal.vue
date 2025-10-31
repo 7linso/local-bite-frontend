@@ -13,6 +13,7 @@ const {
 
 const emit = defineEmits<{
     (e: 'openRecipe', id: string): void;
+    (e: 'toggle-like', p: { id: string; next: boolean }): void
 }>()
 
 </script>
@@ -34,6 +35,7 @@ const emit = defineEmits<{
                     :recipes="pointRecipes"
                     :errors="pointError"
                     :loading="pointLoading"
+                    @toggle-like="emit('toggle-like', $event)"
                     @openRecipe="(id: string) => emit('openRecipe', id)"
                 />
             </div>

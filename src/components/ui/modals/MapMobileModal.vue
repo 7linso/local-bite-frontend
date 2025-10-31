@@ -14,6 +14,7 @@ const {
 
 const emit = defineEmits<{
     (e: 'openRecipe', id: string): void;
+    (e: 'toggle-like', p: { id: string; next: boolean }): void
 }>()
 
 watch(pointOpen, (isOpen) => {
@@ -47,6 +48,7 @@ onUnmounted(() => { document.body.style.overflow = '' })
                         :recipes="pointRecipes"
                         :errors="pointError"
                         :loading="pointLoading"
+                        @toggle-like="emit('toggle-like', $event)"
                         @openRecipe="(id: string) => emit('openRecipe', id)"
                     />
                 </div>

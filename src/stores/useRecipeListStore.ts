@@ -1,10 +1,13 @@
 import { defineStore } from "pinia";
-import { ref, reactive } from 'vue'
+import { ref, unref, reactive } from 'vue'
 import { recipes } from "@/lib/api/recipes";
 import type { FeatureCollection, Feature, Point } from 'geojson'
 import type { RecipeCardPreview, SearchRecipesFilters } from "@/lib/types";
+import { useAuthStore } from "./useAuthStore";
 
 export const useRecipeListStore = defineStore('recipes', () => {
+    const auth = useAuthStore()
+
     const loading = ref(false)
     const errors = reactive<Record<string, string>>({})
     const list = ref<RecipeCardPreview[]>([])
@@ -31,6 +34,8 @@ export const useRecipeListStore = defineStore('recipes', () => {
     const pointError = reactive<Record<string, string>>({})
     const pointCoords = ref<{ lat: number; lng: number } | null>(null)
     const pointOpen = ref(false)
+
+    const usersRecipes = ref<RecipeCardPreview[]>([])
 
     const resetErrors = () => {
         for (const k of Object.keys(errors)) delete errors[k]
@@ -160,6 +165,34 @@ export const useRecipeListStore = defineStore('recipes', () => {
         }
     }
 
+    const fetchUsersRecipes = async () => {
+        try {
+            loading.value = true
+            resetErrors()
+
+            const u = unref(auth.user)
+            const userId = u?._id
+            if (!userId) return
+
+            const res = await recipes.getAllRecipes({
+                limit: 20,
+                authorId: userId
+            })
+
+            usersRecipes.value = res.items
+            nextCursor.value = res.nextCursor
+            hasNextPage.value = !!res.hasNextPage
+
+        } catch (e: any) {
+            errors.usersRecipes = e?.data?.message ?? e.message ?? 'Failed to load recipes'
+            usersRecipes.value = []
+            nextCursor.value = null
+            hasNextPage.value = false
+        } finally {
+            loading.value = false
+        }
+    }
+
     return {
         loading,
         errors,
@@ -176,6 +209,8 @@ export const useRecipeListStore = defineStore('recipes', () => {
         pointError,
         pointLoading,
         pointOpen,
-        pointRecipes
+        pointRecipes,
+        usersRecipes,
+        fetchUsersRecipes
     }
 })

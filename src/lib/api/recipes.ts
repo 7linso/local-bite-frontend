@@ -11,6 +11,10 @@ export const recipes = {
 
     deleteRecipe: (p: string) => api.delete(`/recipes/${p}`),
 
-    editRecipe: (p: RecipePayload, id: string) => api.patch(`/recipes/${id}`, p)
+    editRecipe: (p: RecipePayload, id: string) => api.patch(`/recipes/${id}`, p),
+
+    likeRecipe: (p: string) => api.patch(`/recipes/${p}/like`),
+
+    dislikeRecipe: (p: string) => api.patch(`/recipes/${p}/dislike`),
 
 }

@@ -13,6 +13,7 @@ const props = defineProps<{
 const emit = defineEmits<{
     (e: 'create'): void
     (e: 'openRecipe', id: string): void
+    (e: 'toggle-like', p: { id: string; next: boolean }): void
 }>()
 
 const showSkeleton = ref<boolean>(false)
@@ -94,9 +95,13 @@ onUnmounted(() => {
                     v-for="r in recipes"
                     :key="r._id"
                     @click="emit('openRecipe', (r._id))"
+                    @toggle-like="emit('toggle-like', $event)"
                     class="cursor-pointer"
                 >
-                    <RecipePreviewCard :recipe="r" />
+                    <RecipePreviewCard 
+                        :recipe="r"
+                        @toggle-like="emit('toggle-like', $event)"
+                    />
                 </div>
             </div>
         </Transition>

@@ -1,13 +1,37 @@
 <script setup lang="ts">
+import { recipes } from '@/lib/api/recipes';
 import type { RecipeCardPreview } from '@/lib/types'
+import { useAuthStore } from '@/stores/useAuthStore';
+import { Heart } from 'lucide-vue-next';
+import { useRouter } from 'vue-router';
 
 const props = defineProps<{
   recipe?: RecipeCardPreview,
 }>()
+
+const router = useRouter()
+
+const auth = useAuthStore()
+
+const emit = defineEmits<{
+    (e: 'toggle-like', p: { id: string; next: boolean }): void,
+    (e: 'click'): void
+}>()
+
+const handleLikeRecipe = async() => {
+    if(props.recipe){
+        if (!auth.isAuth) 
+            return router.replace('/signup')
+        emit('toggle-like', { 
+            id: props.recipe._id, 
+            next: !props.recipe.isLiked 
+        }, )
+    }
+}
 </script>
 
 <template>
-    <article @click="$emit('click')"
+    <article @click="emit('click')"
         class="cursor-pointer w-full shadow-lg  flex bg-white text-gray-900 overflow-hidden rounded-xl border border-amber-800"
     >
         <!-- image -->
@@ -28,11 +52,22 @@ const props = defineProps<{
         </div>
 
         <div class="flex-1 min-w-0 p-3">
-            <h2 class="font-semibold text-base text-gray-900 truncate"
-                :class="{ 'h-4 w-24 bg-white rounded animate-pulse': !recipe }"
-            >
-                {{ recipe ? recipe.title : '' }}
-            </h2>
+            <div class="flex items-center justify-between">
+                <h2 class="font-semibold text-base text-gray-900 truncate"
+                    :class="{ 'h-4 w-24 bg-white rounded animate-pulse': !recipe }"
+                >
+                    {{ recipe ? recipe.title : '' }}
+                </h2>
+                <span class="flex items-center gap-1">
+                    {{ recipe?.likeCount ? recipe?.likeCount : '' }}
+                    <Heart
+                        @click.stop="handleLikeRecipe"
+                        :size="14"
+                        :fill="recipe?.isLiked ? 'currentColor' : 'none'"
+                        class="text-amber-900 cursor-pointer"
+                    />
+                </span>
+            </div>
 
             <p class="text-sm text-gray-600 line-clamp-2 mt-1 truncate"
                 :class="{ 'h-4 w-36 bg-white rounded animate-pulse': !recipe }"
