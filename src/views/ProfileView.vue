@@ -31,40 +31,76 @@ const {
   onPickProfilePic,
   updateField,
   deleteOpen,
-  deleteAccount
+  deleteAccount,
 } = useProfileForm(auth, toast, () => { isEditing.value = false })
 
 const recipeStore = useRecipeListStore()
-const { fetchUsersRecipes } = recipeStore
-const { usersRecipes, errors: userRecipesErrors, loading } = storeToRefs(recipeStore)
+const { 
+  fetchUsersRecipes,
+  fetchNextUsersRecipes,
+  fetchUsersLikedRecipes,
+  fetchNextUsersLikedRecipes
+} = recipeStore
+
+const { 
+  usersRecipes, 
+  usersError,
+  usersLoading,
+  usersHasNextPage,
+
+  usersLikedRecipes,
+  likedLoading,
+  likedError,
+  likedHasNextPage,
+} = storeToRefs(recipeStore)
 
 const applyLikeLocal = (id: string, next: boolean) => {
-    const likeOne = (arr: any[]) => {
-        const it = arr.find(x => x._id === id)
-        if (it) {
-            const delta = next ? 1 : -1
-            it.isLiked = next
-            it.likeCount = Math.max(0, (it.likeCount ?? 0) + delta)
-        }
+  const touch = (arr: any[]) => {
+    const it = arr.find(x => x._id === id)
+    if (it) {
+      const delta = next ? 1 : -1
+      it.isLiked = next
+      it.likeCount = Math.max(0, (it.likeCount ?? 0) + delta)
     }
-    likeOne(usersRecipes.value)
+  }
+  touch(usersRecipes.value)
+
+  if (!next) {
+    const idx = usersLikedRecipes.value.findIndex(x => x._id === id)
+    if (idx !== -1) usersLikedRecipes.value.splice(idx, 1)
+  } else {
+    touch(usersLikedRecipes.value)
+  }
 }
 
-const onToggleLike = async({ id, next }: { id: string; next: boolean }) => {
-    const prev = usersRecipes.value.find(x => x._id === id)
-    const prevState = prev ? { isLiked: prev.isLiked, likeCount: prev.likeCount } : null
+const onToggleLike = async ({ id, next }: { id: string; next: boolean }) => {
+  const pool = activeTab.value === 'favs' ? usersLikedRecipes.value : usersRecipes.value
+  const prev = pool.find(x => x._id === id)
+  const prevState = prev ? { isLiked: prev.isLiked, likeCount: prev.likeCount } : null
 
-    applyLikeLocal(id, next)
+  applyLikeLocal(id, next)
 
-    try {
-        await (next ? recipes.likeRecipe(id) : recipes.dislikeRecipe(id))
-    } catch (e) {
-        if (prev && prevState) {
-            prev.isLiked = prevState.isLiked
-            prev.likeCount = prevState.likeCount
-        }
+  try {
+    await (next ? recipes.likeRecipe(id) : recipes.dislikeRecipe(id))
+  } catch {
+    const rollback = (arr: any[]) => {
+      const it = arr.find(x => x._id === id)
+      if (it && prevState) {
+        it.isLiked = prevState.isLiked
+        it.likeCount = prevState.likeCount
+      }
     }
+    rollback(usersRecipes.value)
+    if (activeTab.value === 'favs' && !next && prev) {
+      const exists = usersLikedRecipes.value.some(x => x._id === id)
+      if (!exists) usersLikedRecipes.value.unshift(prev as any)
+    } else {
+      rollback(usersLikedRecipes.value)
+    }
+  }
 }
+
+const activeTab = ref<'collection' | 'favs'>('collection')
 
 watch(user, (u) => {
   if (u) {
@@ -72,6 +108,15 @@ watch(user, (u) => {
     fetchUsersRecipes()
   }
 }, { immediate: true })
+
+watch(activeTab, (t) => {
+  if (t === 'collection') 
+    return
+
+  if (usersLikedRecipes.value.length === 0 && !likedLoading.value) 
+    fetchUsersLikedRecipes() 
+  
+})
 
 </script>
 
@@ -141,17 +186,75 @@ watch(user, (u) => {
     </form>
   </section>
 
-  <section class="w-[90%] sm:w-[400px] md:w-[500px] lg:w-[600px]
+  <section
+    class="w-[90%] sm:w-[400px] md:w-[500px] lg:w-[600px]
           bg-white rounded-2xl shadow-sm overflow-hidden border border-amber-900 p-5 my-10 mx-auto"
   >
-    <RecipesList
-      :recipes="usersRecipes"
-      :loading="loading"
-      :errors="userRecipesErrors"
-      @openRecipe="(id: string) => router.push(`/recipes/${id}`)"
-      @toggle-like="onToggleLike"
-    />
+    <div class="flex items-center justify-center gap-2 mb-4">
+      <button
+        :class="[
+          'px-4 py-1.5 rounded-full border transition',
+          activeTab === 'collection'
+            ? 'bg-amber-900 text-white border-amber-900'
+            : 'bg-white text-amber-900 border-amber-900 hover:bg-amber-50'
+        ]"
+        @click="activeTab = 'collection'"
+      >
+        My collection
+      </button>
+
+      <button
+        :class="[
+          'px-4 py-1.5 rounded-full border transition',
+          activeTab === 'favs'
+            ? 'bg-amber-900 text-white border-amber-900'
+            : 'bg-white text-amber-900 border-amber-900 hover:bg-amber-50'
+        ]"
+        @click="activeTab = 'favs'"
+      >
+        Favourites
+      </button>
+    </div>
+
+    <div v-if="activeTab === 'collection'">
+      <RecipesList
+        :recipes="usersRecipes"
+        :loading="usersLoading"
+        :errors="{ list: usersError || '' }"
+        @openRecipe="(id: string) => router.push(`/recipes/${id}`)"
+        @toggle-like="onToggleLike"
+      />
+
+      <div v-if="usersHasNextPage" class="flex justify-center items-center gap-2 mt-4">
+        <button
+          @click="fetchNextUsersRecipes"
+          class="inline-flex w-full md:w-auto items-center justify-center rounded-xl border border-gray-800 px-4 py-2 font-medium hover:bg-gray-900 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-800 transition"
+        >
+          More
+        </button>
+      </div>
+    </div>
+
+    <div v-else>
+      <RecipesList
+        :recipes="usersLikedRecipes"
+        :loading="likedLoading"
+        :errors="{ list: likedError || '' }"
+        @openRecipe="(id: string) => router.push(`/recipes/${id}`)"
+        @toggle-like="onToggleLike"
+      />
+
+      <div v-if="likedHasNextPage" class="flex justify-center items-center gap-2 mt-4">
+        <button
+          @click="fetchNextUsersLikedRecipes"
+          class="inline-flex w-full md:w-auto items-center justify-center rounded-xl border border-gray-800 px-4 py-2 font-medium hover:bg-gray-900 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-800 transition"
+        >
+          More
+        </button>
+      </div>
+    </div>
   </section>
+
 
   <DeleteModal 
     :open="deleteOpen" 

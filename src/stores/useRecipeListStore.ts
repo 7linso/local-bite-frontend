@@ -1,24 +1,12 @@
-import { defineStore } from "pinia";
-import { ref, unref, reactive } from 'vue'
-import { recipes } from "@/lib/api/recipes";
+import { defineStore } from 'pinia'
+import { ref, reactive, unref } from 'vue'
 import type { FeatureCollection, Feature, Point } from 'geojson'
-import type { RecipeCardPreview, SearchRecipesFilters } from "@/lib/types";
-import { useAuthStore } from "./useAuthStore";
+import type { RecipeCardPreview, SearchRecipesFilters } from '@/lib/types'
+import { recipes } from '@/lib/api/recipes'
+import { useAuthStore } from './useAuthStore'
 
 export const useRecipeListStore = defineStore('recipes', () => {
     const auth = useAuthStore()
-
-    const loading = ref(false)
-    const errors = reactive<Record<string, string>>({})
-    const list = ref<RecipeCardPreview[]>([])
-
-    const nextCursor = ref<string | null>(null)
-    const hasNextPage = ref<boolean>(false)
-
-    const geojson = ref<FeatureCollection<Point>>({
-        type: 'FeatureCollection',
-        features: []
-    })
 
     const currentFilters = ref<SearchRecipesFilters>({
         q: '',
@@ -26,25 +14,8 @@ export const useRecipeListStore = defineStore('recipes', () => {
         dishTypes: new Set(),
         nearLat: null,
         nearLng: null,
-        maxKm: null
+        maxKm: null,
     })
-
-    const pointRecipes = ref<RecipeCardPreview[]>([])
-    const pointLoading = ref(false)
-    const pointError = reactive<Record<string, string>>({})
-    const pointCoords = ref<{ lat: number; lng: number } | null>(null)
-    const pointOpen = ref(false)
-
-    const usersRecipes = ref<RecipeCardPreview[]>([])
-
-    const resetErrors = () => {
-        for (const k of Object.keys(errors)) delete errors[k]
-    }
-
-    const resetPointError = () => {
-        for (const k of Object.keys(pointError)) delete pointError[k]
-    }
-
     const updateFilterField = <K extends keyof SearchRecipesFilters>(
         key: K,
         value: SearchRecipesFilters[K]
@@ -52,98 +23,100 @@ export const useRecipeListStore = defineStore('recipes', () => {
         currentFilters.value = { ...currentFilters.value, [key]: value }
     }
 
-    const buildQueryParams = (extra: Record<string, any> = {}) => {
-        return {
-            limit: 20,
-            q: currentFilters.value.q,
-            country: currentFilters.value.country === 'All' ? '' : currentFilters.value.country,
-            dishTypes: [...currentFilters.value.dishTypes].join(','),
-            ...extra,
-        }
+    const main = {
+        loading: ref(false),
+        error: ref<string | null>(null),
+        list: ref<RecipeCardPreview[]>([]),
+        nextCursor: ref<string | null>(null),
+        hasNextPage: ref(false),
+        geojson: ref<FeatureCollection<Point>>({ type: 'FeatureCollection', features: [] }),
     }
 
+    const point = {
+        loading: ref(false),
+        error: ref<string | null>(null),
+        recipes: ref<RecipeCardPreview[]>([]),
+        coords: ref<{ lat: number; lng: number } | null>(null),
+        open: ref(false),
+    }
+
+    const users = {
+        loading: ref(false),
+        error: ref<string | null>(null),
+        list: ref<RecipeCardPreview[]>([]),
+        nextCursor: ref<string | null>(null),
+        hasNextPage: ref(false),
+    }
+
+    const liked = {
+        loading: ref(false),
+        error: ref<string | null>(null),
+        list: ref<RecipeCardPreview[]>([]),
+        nextCursor: ref<string | null>(null),
+        hasNextPage: ref(false),
+    }
+
+    const buildParams = (extra: Record<string, any> = {}) => ({
+        limit: 20,
+        q: currentFilters.value.q,
+        country: currentFilters.value.country === 'All' ? '' : currentFilters.value.country,
+        dishTypes: [...currentFilters.value.dishTypes].join(','),
+        ...extra,
+    })
+
+    const toGeoJSON = (items: RecipeCardPreview[]): FeatureCollection<Point> => ({
+        type: 'FeatureCollection',
+        features: items.map(
+            (r): Feature<Point> => ({
+                type: 'Feature',
+                properties: { id: r._id, title: r.title },
+                geometry: { type: 'Point', coordinates: r.point.coordinates },
+            })
+        ),
+    })
+
     const fetchFirstPage = async () => {
+        main.loading.value = true
+        main.error.value = null
         try {
-            loading.value = true
-            resetErrors()
-
-            const res = await recipes.getAllRecipes(buildQueryParams({
-                cursor: undefined
-            }))
-
-            list.value = res.items
-            nextCursor.value = res.nextCursor
-            hasNextPage.value = !!res.hasNextPage
-
-            geojson.value = {
-                type: 'FeatureCollection',
-                features: list.value.map((r): Feature<Point> => ({
-                    type: 'Feature',
-                    properties: {
-                        id: r._id,
-                        title: r.title,
-                    },
-                    geometry: {
-                        type: 'Point',
-                        coordinates: r.point.coordinates,
-                    },
-                })),
-            }
+            const res = await recipes.getAllRecipes(buildParams({ cursor: undefined }))
+            main.list.value = res.items
+            main.nextCursor.value = res.nextCursor
+            main.hasNextPage.value = !!res.hasNextPage
+            main.geojson.value = toGeoJSON(main.list.value)
         } catch (e: any) {
-            errors.list = e?.data?.message ?? e.message ?? 'Failed to load recipes'
-            list.value = []
-            nextCursor.value = null
-            hasNextPage.value = false
+            main.error.value = e?.data?.message ?? e?.message ?? 'Failed to load recipes'
+            main.list.value = []
+            main.nextCursor.value = null
+            main.hasNextPage.value = false
+            main.geojson.value = { type: 'FeatureCollection', features: [] }
         } finally {
-            loading.value = false
+            main.loading.value = false
         }
     }
 
     const fetchNextPage = async () => {
-        if (!nextCursor.value)
-            return
+        if (!main.nextCursor.value) return
+        main.loading.value = true
+        main.error.value = null
         try {
-            loading.value = true
-            resetErrors()
-
-            const res = await recipes.getAllRecipes(
-                buildQueryParams({
-                    cursor: nextCursor.value,
-                })
-            )
-
-            list.value.push(...res.items)
-            nextCursor.value = res.nextCursor
-            hasNextPage.value = !!res.hasNextPage
-
-            geojson.value = {
-                type: 'FeatureCollection',
-                features: list.value.map((r): Feature<Point> => ({
-                    type: 'Feature',
-                    properties: {
-                        id: r._id,
-                        title: r.title,
-                    },
-                    geometry: {
-                        type: 'Point',
-                        coordinates: r.point.coordinates,
-                    },
-                })),
-
-            }
+            const res = await recipes.getAllRecipes(buildParams({ cursor: main.nextCursor.value }))
+            main.list.value.push(...res.items)
+            main.nextCursor.value = res.nextCursor
+            main.hasNextPage.value = !!res.hasNextPage
+            main.geojson.value = toGeoJSON(main.list.value)
         } catch (e: any) {
-            errors.list = e?.data?.message ?? e.message ?? 'Failed to load more recipes'
+            main.error.value = e?.data?.message ?? e?.message ?? 'Failed to load more recipes'
         } finally {
-            loading.value = false
+            main.loading.value = false
         }
     }
 
     const fetchPointRecipes = async (lat: number, lng: number) => {
+        point.loading.value = true
+        point.error.value = null
+        point.coords.value = { lat, lng }
         try {
-            pointLoading.value = true
-            resetPointError()
-            pointCoords.value = { lat, lng }
-
             const res = await recipes.getAllRecipes({
                 limit: 10,
                 q: currentFilters.value.q,
@@ -151,66 +124,153 @@ export const useRecipeListStore = defineStore('recipes', () => {
                 dishTypes: [...currentFilters.value.dishTypes].join(','),
                 nearLat: lat,
                 nearLng: lng,
-                maxKm: 1
+                maxKm: 1,
             })
-
-            pointRecipes.value = res.items
-            pointOpen.value = true
+            point.recipes.value = res.items
+            point.open.value = true
         } catch (e: any) {
-            pointError.list = e?.data?.message ?? e.message ?? 'Failed to load recipes for this location'
-            pointRecipes.value = []
-            pointOpen.value = true
+            point.error.value =
+                e?.data?.message ?? e?.message ?? 'Failed to load recipes for this location'
+            point.recipes.value = []
+            point.open.value = true
         } finally {
-            pointLoading.value = false
+            point.loading.value = false
         }
     }
 
     const fetchUsersRecipes = async () => {
+        users.loading.value = true
+        users.error.value = null
         try {
-            loading.value = true
-            resetErrors()
-
             const u = unref(auth.user)
             const userId = u?._id
-            if (!userId) return
-
+            if (!userId) {
+                users.list.value = []
+                users.nextCursor.value = null
+                users.hasNextPage.value = false
+                return
+            }
             const res = await recipes.getAllRecipes({
                 limit: 20,
-                authorId: userId
+                authorId: userId,
             })
-
-            usersRecipes.value = res.items
-            nextCursor.value = res.nextCursor
-            hasNextPage.value = !!res.hasNextPage
-
+            users.list.value = res.items
+            users.nextCursor.value = res.nextCursor ?? null
+            users.hasNextPage.value = !!res.hasNextPage
         } catch (e: any) {
-            errors.usersRecipes = e?.data?.message ?? e.message ?? 'Failed to load recipes'
-            usersRecipes.value = []
-            nextCursor.value = null
-            hasNextPage.value = false
+            users.error.value = e?.data?.message ?? e?.message ?? 'Failed to load user recipes'
+            users.list.value = []
+            users.nextCursor.value = null
+            users.hasNextPage.value = false
         } finally {
-            loading.value = false
+            users.loading.value = false
+        }
+    }
+
+    const fetchNextUsersRecipes = async () => {
+        if (!users.nextCursor.value) return
+        users.loading.value = true
+        users.error.value = null
+        try {
+            const u = unref(auth.user)
+            const userId = u?._id
+            const res = await recipes.getAllRecipes({
+                limit: 20,
+                cursor: users.nextCursor.value,
+                authorId: userId,
+            })
+            users.list.value.push(...res.items)
+            users.nextCursor.value = res.nextCursor ?? null
+            users.hasNextPage.value = !!res.hasNextPage
+        } catch (e: any) {
+            users.error.value = e?.data?.message ?? e?.message ?? 'Failed to load more liked recipes'
+        } finally {
+            users.loading.value = false
+        }
+    }
+
+    const fetchUsersLikedRecipes = async () => {
+        liked.loading.value = true
+        liked.error.value = null
+        try {
+            const u = unref(auth.user)
+            const userId = u?._id
+            if (!userId) {
+                liked.list.value = []
+                liked.nextCursor.value = null
+                liked.hasNextPage.value = false
+                return
+            }
+            const res = await recipes.getLikedRecipes({ limit: 20 })
+            liked.list.value = res.items
+            liked.nextCursor.value = res.nextCursor ?? null
+            liked.hasNextPage.value = !!res.hasNextPage
+        } catch (e: any) {
+            liked.error.value = e?.data?.message ?? e?.message ?? 'Failed to load liked recipes'
+            liked.list.value = []
+            liked.nextCursor.value = null
+            liked.hasNextPage.value = false
+        } finally {
+            liked.loading.value = false
+        }
+    }
+
+    const fetchNextUsersLikedRecipes = async () => {
+        if (!liked.nextCursor.value) return
+        liked.loading.value = true
+        liked.error.value = null
+        try {
+            const res = await recipes.getLikedRecipes({ limit: 20, cursor: liked.nextCursor.value })
+            liked.list.value.push(...res.items)
+            liked.nextCursor.value = res.nextCursor ?? null
+            liked.hasNextPage.value = !!res.hasNextPage
+        } catch (e: any) {
+            liked.error.value = e?.data?.message ?? e?.message ?? 'Failed to load more liked recipes'
+        } finally {
+            liked.loading.value = false
         }
     }
 
     return {
-        loading,
-        errors,
-        hasNextPage,
-        nextCursor,
-        list,
+        // filters
         currentFilters,
-        geojson,
+        updateFilterField,
+
+        // list + map
+        loading: main.loading,
+        errors: reactive({ list: '' as any }),
+        list: main.list,
+        nextCursor: main.nextCursor,
+        hasNextPage: main.hasNextPage,
+        geojson: main.geojson,
+
+        // point 
+        pointCoords: point.coords,
+        pointError: reactive({ list: '' as any }),
+        pointLoading: point.loading,
+        pointOpen: point.open,
+        pointRecipes: point.recipes,
+
+        // users 
+        usersRecipes: users.list,
+        usersLoading: users.loading,
+        usersError: users.error,
+        usersHasNextPage: users.hasNextPage,
+        usersNextCursor: users.nextCursor,
+
+        usersLikedRecipes: liked.list,
+        likedLoading: liked.loading,
+        likedError: liked.error,
+        likedHasNextPage: liked.hasNextPage,
+        likedNextCursor: liked.nextCursor,
+
+        // methods
         fetchFirstPage,
         fetchNextPage,
-        updateFilterField,
         fetchPointRecipes,
-        pointCoords,
-        pointError,
-        pointLoading,
-        pointOpen,
-        pointRecipes,
-        usersRecipes,
-        fetchUsersRecipes
+        fetchUsersRecipes,
+        fetchNextUsersRecipes,
+        fetchUsersLikedRecipes,
+        fetchNextUsersLikedRecipes
     }
 })

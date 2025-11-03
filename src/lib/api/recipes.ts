@@ -17,4 +17,7 @@ export const recipes = {
 
     dislikeRecipe: (p: string) => api.patch(`/recipes/${p}/dislike`),
 
+    getLikedRecipes: (params?: Record<string, any>) =>
+        api.get<any>('/recipes/liked', { params }),
+
 }
