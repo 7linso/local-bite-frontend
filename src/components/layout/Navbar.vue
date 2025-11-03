@@ -28,7 +28,6 @@ const onSignout = async() => {
 
         <template v-else>
           <RouterLink to="/profile"><User /></RouterLink>
-          <RouterLink to="/about"><Info /></RouterLink>
           <button @click="onSignout"><LogOut /></button>
         </template>
       </div>

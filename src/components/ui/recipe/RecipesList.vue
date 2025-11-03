@@ -91,14 +91,14 @@ onUnmounted(() => {
 
             <!-- list -->
             <div v-else-if="show === 'list'" class="my-4 space-y-5">
-                <div
-                    v-for="r in recipes"
+                <div v-for="r in recipes"
                     :key="r._id"
-                    @click="emit('openRecipe', (r._id))"
+                    @click="emit('openRecipe', r._id)"
                     @toggle-like="emit('toggle-like', $event)"
                     class="cursor-pointer"
                 >
                     <RecipePreviewCard 
+                        v-memo="[r._id, r.likeCount]"
                         :recipe="r"
                         @toggle-like="emit('toggle-like', $event)"
                     />
