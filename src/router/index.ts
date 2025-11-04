@@ -5,6 +5,7 @@ const Home = () => import('@/views/HomeView.vue')
 const SignUp = () => import('@/views/SignUpView.vue')
 const SignIn = () => import('@/views/SignInView.vue')
 const Profile = () => import('@/views/ProfileView.vue')
+const AnotherProfile = () => import('@/views/AnotherProfile.vue')
 const RecipesList = () => import('@/views/RecipesListView.vue')
 const Recipe = () => import('@/views/RecipeView.vue')
 const CreateRecipe = () => import('@/views/CreateRecipeView.vue')
@@ -22,6 +23,7 @@ const router = createRouter({
         { path: 'signup', name: 'signup', component: SignUp, meta: { guestOnly: true } },
         { path: 'signin', name: 'signin', component: SignIn, meta: { guestOnly: true } },
         { path: 'profile', name: 'profile', component: Profile, meta: { requiresAuth: true } },
+        { path: 'profile/:username', name: 'anotherProfile', component: AnotherProfile},
       ],
     },
     {

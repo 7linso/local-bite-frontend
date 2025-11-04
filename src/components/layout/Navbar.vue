@@ -23,7 +23,6 @@ const onSignout = async() => {
       <div class="flex items-center gap-3">
         <template v-if="!isAuth">
           <RouterLink to="/signup"><LogIn /></RouterLink>
-          <RouterLink to="/about"><Info /></RouterLink>
         </template>
 
         <template v-else>

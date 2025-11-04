@@ -1,31 +1,38 @@
 <script setup lang="ts">
 import type { ProfileForm } from '@/lib/types'
+import { computed } from 'vue'
 
 const props = defineProps<{
   form: ProfileForm,
   errors: Record<string, string>,
-  disabled?: boolean,
-  update: (k: keyof ProfileForm, v: any) => void
+  disabled?: boolean
+  update?: (k: keyof ProfileForm, v: any) => void
+  hiddenFields?: string[]
 }>()
 
-const emit = defineEmits<{ (e: 'update:form', k: keyof ProfileForm, v: any): void }>();
+const emit = defineEmits<{
+  (e: 'update:form', value: ProfileForm): void
+}>()
 
-const update = props.update
+const hide = (f: string) => props.hiddenFields?.includes(f) ?? false
+
+const readonly = computed(() => !!props.disabled)
 
 </script>
 
 <template>
-  <div class="grid gap-y-1 md:gap-y-3 gap-x-4 grid-cols-1 md:[grid-template-columns:150px_minmax(0,1fr)]">
-    <label 
-      for="fullname" 
-      class="md:text-right md:self-start md:pt-1"
+  <div class="grid grid-cols-1 md:grid-cols-12 gap-x-4 gap-y-2 md:gap-y-3">
+    
+    <div 
+      class="md:col-span-3 md:text-right md:self-start md:pt-1" 
+      v-if="!hide('fullname')"
     >
-      full name
-    </label>
-    <div>
+      <label for="fullname">full name</label>
+    </div>
+    <div class="md:col-span-9" v-if="!hide('fullname')">
       <input
         :value="form.fullname"
-        @input="update('fullname', ($event.target as HTMLInputElement).value)"
+        @input="update && update('fullname', ($event.target as HTMLInputElement).value)"
         id="fullname" 
         type="text" 
         placeholder="John Doe" 
@@ -35,35 +42,36 @@ const update = props.update
       <p v-if="errors.fullname" class="text-xs text-red-600">{{ errors.fullname }}</p>
     </div>
 
-    <label 
-      for="email" 
-      class="md:text-right md:self-start md:pt-1" 
+   <div 
+      class="md:col-span-3 md:text-right md:self-start md:pt-1" 
+      v-if="!hide('email')"
     >
-      email
-    </label>
-    <div>
+      <label for="email">email</label>
+    </div>
+    <div class="md:col-span-9" v-if="!hide('email')">
       <input
         :value="form.email"
-        @input="update('email', ($event.target as HTMLInputElement).value)"
+        @input="update && update('email', ($event.target as HTMLInputElement).value)"
         id="email" 
         type="email" 
         placeholder="john1doe@gmail.com" 
         :disabled="disabled"
         class="w-full px-3 py-1 rounded-md border border-gray-600 bg-gray-100"
+    />
       />
       <p v-if="errors.email" class="text-xs text-red-600">{{ errors.email }}</p>
     </div>
 
-    <label 
-      for="username" 
-      class="md:text-right md:self-start md:pt-1"
+    <div 
+      class="md:col-span-3 md:text-right md:self-start md:pt-1" 
+      v-if="!hide('username')"
     >
-      username
-    </label>
-    <div>
+      <label for="username">username</label>
+    </div>
+    <div class="md:col-span-9" v-if="!hide('username')">
       <input
         :value="form.username"
-        @input="update('username', ($event.target as HTMLInputElement).value)"
+        @input="update && update('username', ($event.target as HTMLInputElement).value)"
         id="username" 
         type="text" 
         placeholder="john_doe111" 
@@ -73,16 +81,16 @@ const update = props.update
       <p v-if="errors.username" class="text-xs text-red-600">{{ errors.username }}</p>
     </div>
 
-    <label 
-      for="bio" 
-      class="md:text-right md:self-start md:pt-1"
+    <div 
+      class="md:col-span-3 md:text-right md:self-start md:pt-1" 
+      v-if="!hide('bio')"
     >
-      bio
-    </label>
-    <div>
+      <label for="bio">bio</label>
+    </div>
+    <div class="md:col-span-9" v-if="!hide('bio')">
       <textarea
         :value="form.bio"
-        @input="update('bio', ($event.target as HTMLTextAreaElement).value)"
+        @input="update && update('bio', ($event.target as HTMLTextAreaElement).value)"
         id="bio" 
         placeholder="tell smth about yourself" 
         :disabled="disabled"
@@ -91,55 +99,68 @@ const update = props.update
       <p v-if="errors.bio" class="text-xs text-red-600">{{ errors.bio }}</p>
     </div>
 
-    <label 
-      for="locality" 
-      class="md:text-right md:self-start md:pt-1"
+    <div 
+      class="md:col-span-3 md:text-right md:self-start md:pt-1" 
+      v-if="!hide('location')"
     >
-      locality
-    </label>
-    <div>
-      <p v-if="errors.location" class="text-xs text-red-600">{{ errors.location }}</p>
+      <label for="locality">locality</label>
+    </div>
+    <div class="md:col-span-9" v-if="!hide('location')">
+      <p 
+        v-if="errors?.location" 
+        class="text-xs text-red-600"
+      >
+        {{ errors.location }}
+      </p>
       <input
-        :value="form.location.locality"
-        @input="update('location', { ...form.location, locality: ($event.target as HTMLInputElement).value })"
-        id="locality" 
-        type="text" 
-        placeholder="Winnipeg" 
-        :disabled="disabled"
+        :value="form.location?.locality ?? ''"
+        @input="update && update('location', { ...form.location, locality: ($event.target as HTMLInputElement).value })"
+        id="locality"
+        type="text"
+        placeholder="Winnipeg"
+        :readonly="readonly"
+        :disabled="false"
         class="w-full px-3 py-1 rounded-md border border-gray-600 bg-gray-100"
       />
     </div>
 
-    <label 
-      for="area" 
-      class="md:text-right md:self-start md:pt-1"
+    <div 
+      class="md:col-span-3 md:text-right md:self-start md:pt-1" 
+      v-if="!hide('location')"
     >
-      area
-    </label>
-    <input
-      :value="form.location.area"
-      @input="update('location', { ...form.location, area: ($event.target as HTMLInputElement).value })"
-      id="area" 
-      type="text" 
-      placeholder="MB" 
-      :disabled="disabled"
-      class="w-full px-3 py-1 rounded-md border border-gray-600 bg-gray-100"
-    />
+      <label for="area">area</label>
+    </div>
+    <div class="md:col-span-9" v-if="!hide('location')">
+      <input
+        :value="form.location?.area ?? ''"
+        @input="update && update('location', { ...form.location, area: ($event.target as HTMLInputElement).value })"
+        id="area"
+        type="text"
+        placeholder="MB"
+        :readonly="readonly"
+        :disabled="false"
+        class="w-full px-3 py-1 rounded-md border border-gray-600 bg-gray-100"
+      />
+    </div>
 
-    <label 
-      for="country" 
-      class="md:text-right md:self-start md:pt-1"
+    <div 
+      class="md:col-span-3 md:text-right md:self-start md:pt-1" 
+      v-if="!hide('location')"
     >
-      country
-    </label>
-    <input
-      :value="form.location.country"
-      @input="update('location', { ...form.location, country: ($event.target as HTMLInputElement).value })"
-      id="country" 
-      type="text" 
-      placeholder="Canada" 
-      :disabled="disabled"
-      class="w-full px-3 py-1 rounded-md border border-gray-600 bg-gray-100"
-    />
+      <label for="country">country</label>
+    </div>
+    <div class="md:col-span-9" v-if="!hide('location')">
+      <input
+        v-if="!hide('location')"
+        :value="form.location?.country ?? ''"
+        @input="update && update('location', { ...form.location, country: ($event.target as HTMLInputElement).value })"
+        id="country"
+        type="text"
+        placeholder="Canada"
+        :readonly="readonly"
+        :disabled="false"
+        class="w-full px-3 py-1 rounded-md border border-gray-600 bg-gray-100"
+      />
+    </div>
   </div>
 </template>

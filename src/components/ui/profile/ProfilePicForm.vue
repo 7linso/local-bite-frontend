@@ -4,9 +4,9 @@ import { CookieIcon } from 'lucide-vue-next'
 
 const props = defineProps<{
   src: string | null
-  isEditing: boolean
-  isUploading: boolean
-  tempPreview: string | null
+  isEditing?: boolean
+  isUploading?: boolean
+  tempPreview?: string | null
 }>()
 
 const emit = defineEmits<{
@@ -17,6 +17,7 @@ const fileInput = ref<HTMLInputElement | null>(null)
 
 const openPicker = () => fileInput.value?.click()
 const onChange = (ev: Event) => emit('pick', ev)
+
 </script>
 
 <template>

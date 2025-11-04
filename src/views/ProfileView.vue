@@ -115,7 +115,6 @@ watch(activeTab, (t) => {
 
   if (usersLikedRecipes.value.length === 0 && !likedLoading.value) 
     fetchUsersLikedRecipes() 
-  
 })
 
 </script>
@@ -254,7 +253,6 @@ watch(activeTab, (t) => {
       </div>
     </div>
   </section>
-
 
   <DeleteModal 
     :open="deleteOpen" 

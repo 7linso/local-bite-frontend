@@ -18,5 +18,7 @@ export const auth = {
 
     updateProfile: (p: UpdateProfilePayload) => api.patch('/auth/update-profile', p),
 
-    deleteProfile: () => api.delete('/auth/delete-profile')
+    deleteProfile: () => api.delete('/auth/delete-profile'),
+
+    getProfile: (username: string) => api.get(`/auth/${username}`)
 }

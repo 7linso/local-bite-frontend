@@ -56,6 +56,16 @@ export const useRecipeListStore = defineStore('recipes', () => {
         hasNextPage: ref(false),
     }
 
+    type AuthorBucket = {
+        loading: boolean
+        error: string | null
+        list: RecipeCardPreview[]
+        nextCursor: string | null
+        hasNextPage: boolean
+    }
+
+    const authors = reactive<Record<string, AuthorBucket>>({})
+
     const buildParams = (extra: Record<string, any> = {}) => ({
         limit: 20,
         q: currentFilters.value.q,
@@ -74,6 +84,18 @@ export const useRecipeListStore = defineStore('recipes', () => {
             })
         ),
     })
+
+    const ensureAuthor = (authorId: string) => {
+        if (!authors[authorId]) {
+            authors[authorId] = {
+                loading: false,
+                error: null,
+                list: [],
+                nextCursor: null,
+                hasNextPage: false,
+            }
+        }
+    }
 
     const fetchFirstPage = async () => {
         main.loading.value = true
@@ -231,6 +253,41 @@ export const useRecipeListStore = defineStore('recipes', () => {
         }
     }
 
+    async function fetchAuthorFirstPage(authorId: string) {
+        ensureAuthor(authorId)
+        const s = authors[authorId]
+        if (!s) return
+
+        s.loading = true; s.error = null
+        try {
+            const res = await recipes.getAllRecipes({ limit: 20, authorId })
+            s.list = res.items
+            s.nextCursor = res.nextCursor ?? null
+            s.hasNextPage = !!res.hasNextPage
+        } catch (e: any) {
+            s.error = e?.data?.message ?? e?.message ?? 'Failed to load recipes'
+            s.list = []; s.nextCursor = null; s.hasNextPage = false
+        } finally { s.loading = false }
+    }
+
+    async function fetchAuthorNextPage(authorId: string) {
+        ensureAuthor(authorId)
+        const s = authors[authorId]
+        if (!s) return
+
+        if (!s.nextCursor) return
+        s.loading = true; s.error = null
+        try {
+            const res = await recipes.getAllRecipes({ limit: 20, cursor: s.nextCursor, authorId })
+            s.list.push(...res.items)
+            s.nextCursor = res.nextCursor ?? null
+            s.hasNextPage = !!res.hasNextPage
+        } catch (e: any) {
+            s.error = e?.data?.message ?? e?.message ?? 'Failed to load more recipes'
+        } finally { s.loading = false }
+    }
+
+
     return {
         // filters
         currentFilters,
@@ -258,11 +315,14 @@ export const useRecipeListStore = defineStore('recipes', () => {
         usersHasNextPage: users.hasNextPage,
         usersNextCursor: users.nextCursor,
 
+        //liked
         usersLikedRecipes: liked.list,
         likedLoading: liked.loading,
         likedError: liked.error,
         likedHasNextPage: liked.hasNextPage,
         likedNextCursor: liked.nextCursor,
+
+        authors,
 
         // methods
         fetchFirstPage,
@@ -271,6 +331,8 @@ export const useRecipeListStore = defineStore('recipes', () => {
         fetchUsersRecipes,
         fetchNextUsersRecipes,
         fetchUsersLikedRecipes,
-        fetchNextUsersLikedRecipes
+        fetchNextUsersLikedRecipes,
+        fetchAuthorFirstPage,
+        fetchAuthorNextPage,
     }
 })

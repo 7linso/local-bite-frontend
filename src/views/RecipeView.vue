@@ -94,11 +94,18 @@ watch(() => props.id, (newId) => {
                         />
                     </div>
 
-                    <div class="absolute bottom-2 right-2 bg-white/80 text-gray-800 text-xs px-2 py-1 rounded-md border-white/90 border-2" 
+                    <button 
+                        @click="() => {
+                            if(recipe && recipe.authorId?.username !== auth.user?.username) 
+                                router.push(`/profile/${recipe.authorId?.username}`)
+                            else if(recipe && recipe.authorId?.username === auth.user?.username) 
+                                router.push(`/profile`)
+                        }"
+                        class="absolute bottom-2 right-2 bg-white/80 text-gray-800 text-xs px-2 py-1 rounded-md border-white/90 border-2" 
                         :class="{ 'cursor-pointer': recipe.authorId?.username }"
                     >
                         by {{ recipe.authorId?.username || 'unknown' }}
-                    </div>
+                </button>
                 </div>
 
                 <!-- content -->
