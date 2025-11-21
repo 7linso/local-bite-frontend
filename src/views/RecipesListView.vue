@@ -35,7 +35,11 @@ const checkScreen = () => {
   isMdPlusScreen.value = window.innerWidth >= 768;
 };
 
+const mapRef = ref<InstanceType<typeof MapView> | null>(null);
+
 const openRecipesByLocationModal = (data: { lat: number; lng: number }) => {
+  mapRef.value?.centerOnPoint(data.lat, data.lng);
+
   fetchPointRecipes(data.lat, data.lng);
 };
 
@@ -95,7 +99,11 @@ onUnmounted(() => {
 
 <template>
   <div class="relative h-[60vh] w-full">
-    <MapView :points="geojson" @pointClick="openRecipesByLocationModal" />
+    <MapView
+      ref="mapRef"
+      :points="geojson"
+      @pointClick="openRecipesByLocationModal"
+    />
 
     <MapDesktopModal
       v-if="isMdPlusScreen"

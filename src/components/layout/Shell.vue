@@ -1,18 +1,18 @@
 <script setup lang="ts">
-import Navbar from './Navbar.vue'
-import Footer from './Footer.vue'
-import { RouterView } from 'vue-router'
-import { onMounted, ref } from 'vue'
+import Navbar from "./Navbar.vue";
+import Footer from "./Footer.vue";
+import { RouterView } from "vue-router";
+import { onMounted, ref } from "vue";
 
-const cookingBg = ref('')
+const cookingBg = ref("");
 
 onMounted(() => {
-  const css  = getComputedStyle(document.documentElement)
-  const TILE = css.getPropertyValue('--tile').trim() || '#FFF6ED' // light cream
-  const INK  = css.getPropertyValue('--ink').trim()  || '#E6A15C' // soft orange-brown
-  const INK2 = css.getPropertyValue('--ink2').trim() || '#C47A3E' // deeper shade
-  const SIZE = Number(css.getPropertyValue('--size').trim()) || 120 
-  
+  const css = getComputedStyle(document.documentElement);
+  const TILE = css.getPropertyValue("--tile").trim() || "#FFF6ED"; // light cream
+  const INK = css.getPropertyValue("--ink").trim() || "#E6A15C"; // soft orange-brown
+  const INK2 = css.getPropertyValue("--ink2").trim() || "#C47A3E"; // deeper shade
+  const SIZE = Number(css.getPropertyValue("--size").trim()) || 120;
+
   const svg = `
     <svg width="${SIZE}" height="${SIZE}" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
       <rect width="80" height="80" fill="${TILE}"/>
@@ -61,10 +61,10 @@ onMounted(() => {
       <circle cx="60" cy="12" r="1.1" fill="${INK2}" opacity=".18"/>
       <circle cx="22" cy="68" r="1.1" fill="${INK2}" opacity=".14"/>
     </svg>
-  `
+  `;
 
-  cookingBg.value = `url("data:image/svg+xml,${encodeURIComponent(svg)}")`
-})
+  cookingBg.value = `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+});
 </script>
 
 <template>
@@ -74,12 +74,12 @@ onMounted(() => {
       class="relative flex-1 bg-cooking-pattern"
       :style="{
         backgroundImage: cookingBg,
-        backgroundSize: 'var(--size, 120px) var(--size, 120px)'
+        backgroundSize: 'var(--size, 120px) var(--size, 120px)',
       }"
     >
-      <RouterView v-slot="{ Component }">
+      <RouterView v-slot="{ Component, route }">
         <keep-alive include="RecipesListPage">
-          <component :is="Component" />
+          <component :is="Component" :key="route.fullPath"/>
         </keep-alive>
       </RouterView>
     </main>
@@ -88,25 +88,28 @@ onMounted(() => {
 </template>
 
 <style>
-:root{
-  --tile: #FFF6ED; /* creamy base */
-  --ink:  #f8c693; /* light orange-brown */
+:root {
+  --tile: #fff6ed; /* creamy base */
+  --ink: #f8c693; /* light orange-brown */
   --ink2: #f7ac70; /* deeper orange-brown */
-  --size: 120px;   /* tile size */
+  --size: 120px; /* tile size */
 }
 </style>
 
 <style scoped>
-.bg-cooking-pattern{
+.bg-cooking-pattern {
   background-color: var(--tile);
   background-repeat: repeat;
 }
 
 /* subtle texture layer */
-.bg-cooking-pattern::after{
-  content:"";
-  position:absolute; inset:0; pointer-events:none;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='table' tableValues='0 0 0 0 .05 .08 .05 0 0 0'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  opacity:.04;
+.bg-cooking-pattern::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='table' tableValues='0 0 0 0 .05 .08 .05 0 0 0'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.04;
 }
+
 </style>

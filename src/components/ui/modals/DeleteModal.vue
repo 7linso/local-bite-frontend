@@ -1,41 +1,36 @@
 <script lang="ts" setup>
-
 const { open } = defineProps<{
-  open: boolean
-}>()
+  open: boolean;
+}>();
 
 defineEmits<{
-    (e: 'confirm'): void;
-    (e: 'cancel'): void;
-}>()
-
+  (e: "confirm"): void;
+  (e: "cancel"): void;
+}>();
 </script>
 
 <template>
-    <div v-if="open"
-        @click="$emit('cancel')"
-        class="fixed inset-0 bg-black/40 grid place-items-center z-50"
-    >
-        <div class="bg-white rounded-lg p-5 shadow max-w-sm w-[90%]">
-            <p class="text-gray-800 mb-4">
-                Are you sure? This action is irreversible!
-            </p>
-            <div class="flex justify-end gap-3">
+  <div
+    v-if="open"
+    @click="$emit('cancel')"
+    class="fixed inset-0 bg-black/40 grid place-items-center z-50"
+  >
+    <div class="bg-white rounded-lg p-5 shadow max-w-sm w-[90%]">
+      <p class="text-gray-800 mb-4">
+        Are you sure? This action is irreversible!
+      </p>
+      <div class="flex justify-end gap-3">
+        <button class="border px-3 py-1 rounded" @click="$emit('cancel')">
+          Cancel
+        </button>
 
-                <button class="border px-3 py-1 rounded" 
-                    @click="$emit('cancel')"
-                >
-                    Cancel
-                </button>
-
-                <button class="bg-red-600 text-white px-3 py-1 rounded" 
-                    @click="$emit('confirm')"
-                >
-                    Yes, delete
-                </button>
-
-            </div>
-        </div>
+        <button
+          class="bg-red-600 text-white px-3 py-1 rounded"
+          @click="$emit('confirm')"
+        >
+          Yes, delete
+        </button>
+      </div>
     </div>
-
+  </div>
 </template>

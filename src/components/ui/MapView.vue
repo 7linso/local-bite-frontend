@@ -1,189 +1,201 @@
 <script setup lang="ts">
-import { onMounted, onBeforeUnmount, ref, watch } from 'vue'
-import maplibregl, { Map } from 'maplibre-gl'
-import 'maplibre-gl/dist/maplibre-gl.css'
-import type { FeatureCollection, Point, Feature, GeoJsonProperties } from 'geojson'
+import { onMounted, onBeforeUnmount, ref, watch } from "vue";
+import maplibregl, { Map } from "maplibre-gl";
+import "maplibre-gl/dist/maplibre-gl.css";
+import type {
+  FeatureCollection,
+  Point,
+  Feature,
+  GeoJsonProperties,
+} from "geojson";
 
-type LngLat = [number, number]
+type LngLat = [number, number];
 
-const POINTS_SRC_ID = 'points-src'
-const POINTS_LAYER_ID = 'points-layer'
+const POINTS_SRC_ID = "points-src";
+const POINTS_LAYER_ID = "points-layer";
 
 const emit = defineEmits<{
-  (e: 'pointClick', data: { lat: number; lng: number }): void
-}>()
+  (e: "pointClick", data: { lat: number; lng: number }): void;
+}>();
 
-const props = withDefaults(defineProps<{
-  styleUrl?: string
-  center?: LngLat
-  zoom?: number
-  pitch?: number
-  /** if set - map carousel, not interactive */
-  spinPeriodSec?: number | null
-  spinPitch?: number
-  autoPauseOnHidden?: boolean
+const props = withDefaults(
+  defineProps<{
+    styleUrl?: string;
+    center?: LngLat;
+    zoom?: number;
+    pitch?: number;
+    /** if set - map carousel, not interactive */
+    spinPeriodSec?: number | null;
+    spinPitch?: number;
+    autoPauseOnHidden?: boolean;
 
-  points?: FeatureCollection<Point, GeoJsonProperties>
+    points?: FeatureCollection<Point, GeoJsonProperties>;
 
-  pointColor?: string
-  pointStrokeColor?: string
-  pointSize?: number
-}>(), {
-  styleUrl: `https://api.maptiler.com/maps/openstreetmap/style.json?key=${import.meta.env.VITE_MAPTILER_KEY}`,
-  center: () => [-96, 45],
-  zoom: 2.2,
-  pitch: 0,
-  spinPeriodSec: null,
-  autoPauseOnHidden: true,
-  points: undefined,
-  pointColor: '#b22222',
-  pointStrokeColor: '#ffffff',
-  pointSize: 4,
-})
+    pointColor?: string;
+    pointStrokeColor?: string;
+    pointSize?: number;
+  }>(),
+  {
+    styleUrl: `https://api.maptiler.com/maps/openstreetmap/style.json?key=${
+      import.meta.env.VITE_MAPTILER_KEY
+    }`,
+    center: () => [-96, 45],
+    zoom: 2.2,
+    pitch: 0,
+    spinPeriodSec: null,
+    autoPauseOnHidden: true,
+    points: undefined,
+    pointColor: "#b22222",
+    pointStrokeColor: "#ffffff",
+    pointSize: 4,
+  }
+);
 
-const mapEl = ref<HTMLDivElement | null>(null)
-let map: Map | null = null
-const mapLoaded = ref(false)
+const mapEl = ref<HTMLDivElement | null>(null);
+let map: Map | null = null;
+const mapLoaded = ref(false);
 
 // --- spin state ---
-let rafId: number | null = null
-let lastTs = 0
-let currLng = props.center[0]
-let baseLat = props.center[1]
+let rafId: number | null = null;
+let lastTs = 0;
+let currLng = props.center[0];
+let baseLat = props.center[1];
 
 const setInteractionsEnabled = (enabled: boolean) => {
-  if (!map) return
-  const m = map
+  if (!map) return;
+  const m = map;
   if (enabled) {
-    m.scrollZoom.enable()
-    m.boxZoom.enable()
-    m.dragRotate.enable()
-    m.dragPan.enable()
-    m.keyboard.enable()
-    m.doubleClickZoom.enable()
-    m.touchZoomRotate.enable()
+    m.scrollZoom.enable();
+    m.boxZoom.enable();
+    m.dragRotate.enable();
+    m.dragPan.enable();
+    m.keyboard.enable();
+    m.doubleClickZoom.enable();
+    m.touchZoomRotate.enable();
   } else {
-    m.scrollZoom.disable()
-    m.boxZoom.disable()
-    m.dragRotate.disable()
-    m.dragPan.disable()
-    m.keyboard.disable()
-    m.doubleClickZoom.disable()
-    m.touchZoomRotate.disable()
+    m.scrollZoom.disable();
+    m.boxZoom.disable();
+    m.dragRotate.disable();
+    m.dragPan.disable();
+    m.keyboard.disable();
+    m.doubleClickZoom.disable();
+    m.touchZoomRotate.disable();
   }
-}
+};
 
 const animate = (ts: number) => {
-  if (!map || !props.spinPeriodSec) 
-    return
-  if (!lastTs) 
-    lastTs = ts
-  const dt = (ts - lastTs) / 1000
-  lastTs = ts
+  if (!map || !props.spinPeriodSec) return;
+  if (!lastTs) lastTs = ts;
+  const dt = (ts - lastTs) / 1000;
+  lastTs = ts;
 
-  const dps = 360 / props.spinPeriodSec 
-  currLng += dps * dt
-  if (currLng > 180) currLng -= 360
-  if (currLng < -180) currLng += 360
+  const dps = 360 / props.spinPeriodSec;
+  currLng += dps * dt;
+  if (currLng > 180) currLng -= 360;
+  if (currLng < -180) currLng += 360;
 
-  map.setCenter([currLng, baseLat])
-  map.setPitch(0)
+  map.setCenter([currLng, baseLat]);
+  map.setPitch(0);
 
-  rafId = requestAnimationFrame(animate)
-}
+  rafId = requestAnimationFrame(animate);
+};
 
 const startSpin = () => {
-  if (!map) 
-    return
-  stopSpin()
-  lastTs = 0
-  currLng = props.center[0]
-  baseLat = props.center[1]
-  map.setCenter([currLng, baseLat])
-  map.setPitch(0)
-  setInteractionsEnabled(false)
-  rafId = requestAnimationFrame(animate)
-}
+  if (!map) return;
+  stopSpin();
+  lastTs = 0;
+  currLng = props.center[0];
+  baseLat = props.center[1];
+  map.setCenter([currLng, baseLat]);
+  map.setPitch(0);
+  setInteractionsEnabled(false);
+  rafId = requestAnimationFrame(animate);
+};
 
 const stopSpin = () => {
-  setInteractionsEnabled(true)
+  setInteractionsEnabled(true);
   if (rafId !== null) {
-    cancelAnimationFrame(rafId)
-    rafId = null
+    cancelAnimationFrame(rafId);
+    rafId = null;
   }
-}
+};
 
 const applyMode = () => {
-  if (props.spinPeriodSec) startSpin()
-  else stopSpin()
-}
+  if (props.spinPeriodSec) startSpin();
+  else stopSpin();
+};
 
 const upsertPoints = () => {
-  if (!map) 
-    return
-  
+  if (!map) return;
+
   if (!props.points || !props.points.features.length) {
-    if (map.getLayer(POINTS_LAYER_ID)) 
-      map.removeLayer(POINTS_LAYER_ID)
+    if (map.getLayer(POINTS_LAYER_ID)) map.removeLayer(POINTS_LAYER_ID);
 
-    if (map.getSource(POINTS_SRC_ID)) 
-      map.removeSource(POINTS_SRC_ID)
+    if (map.getSource(POINTS_SRC_ID)) map.removeSource(POINTS_SRC_ID);
 
-    return
+    return;
   }
 
-  const existing = map.getSource(POINTS_SRC_ID) as any
+  const existing = map.getSource(POINTS_SRC_ID) as any;
 
   if (existing) {
-    existing.setData(props.points)
+    existing.setData(props.points);
   } else {
-    map.addSource(POINTS_SRC_ID, { type: 'geojson', data: props.points })
+    map.addSource(POINTS_SRC_ID, { type: "geojson", data: props.points });
     map.addLayer({
       id: POINTS_LAYER_ID,
-      type: 'circle',
+      type: "circle",
       source: POINTS_SRC_ID,
       paint: {
-        'circle-radius': ['interpolate', ['linear'], ['zoom'],
-          1, Math.max(1, props.pointSize - 2),
-          6, props.pointSize,
-          12, props.pointSize + 2
+        "circle-radius": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          1,
+          Math.max(1, props.pointSize - 2),
+          6,
+          props.pointSize,
+          12,
+          props.pointSize + 2,
         ],
-        'circle-color': props.pointColor,
-        'circle-stroke-color': props.pointStrokeColor,
-        'circle-stroke-width': 1,
+        "circle-color": props.pointColor,
+        "circle-stroke-color": props.pointStrokeColor,
+        "circle-stroke-width": 1,
       },
-    })
-    
-    map.on('click', POINTS_LAYER_ID, (e) => {
-      const f = e.features?.[0] as Feature<Point> | undefined
-      if (!f) return
+    });
 
-      const [lng = 0, lat = 0] = f.geometry.coordinates
+    map.on("click", POINTS_LAYER_ID, (e) => {
+      const f = e.features?.[0] as Feature<Point> | undefined;
+      if (!f) return;
 
-      emit('pointClick', { lat, lng })
-    })
+      const [lng = 0, lat = 0] = f.geometry.coordinates;
 
-    map.on('mouseenter', POINTS_LAYER_ID, () => 
-      map!.getCanvas().style.cursor = 'pointer'
-    )
+      emit("pointClick", { lat, lng });
+    });
 
-    map.on('mouseleave', POINTS_LAYER_ID, () => 
-      map!.getCanvas().style.cursor = ''
-    )
+    map.on(
+      "mouseenter",
+      POINTS_LAYER_ID,
+      () => (map!.getCanvas().style.cursor = "pointer")
+    );
+
+    map.on(
+      "mouseleave",
+      POINTS_LAYER_ID,
+      () => (map!.getCanvas().style.cursor = "")
+    );
   }
-}
+};
 
 const handleVisibility = () => {
-  if (!props.autoPauseOnHidden || !props.spinPeriodSec) 
-    return
+  if (!props.autoPauseOnHidden || !props.spinPeriodSec) return;
 
-  if (document.hidden) stopSpin()
-  else startSpin()
-}
+  if (document.hidden) stopSpin();
+  else startSpin();
+};
 
 onMounted(() => {
-  if (!mapEl.value) 
-    return
+  if (!mapEl.value) return;
 
   map = new maplibregl.Map({
     container: mapEl.value,
@@ -192,53 +204,89 @@ onMounted(() => {
     zoom: props.zoom,
     pitch: props.pitch,
     renderWorldCopies: true,
-  })
+  });
 
-  map.on('load', () => {
-    mapLoaded.value = true
-    currLng = props.center[0]
-    baseLat = props.center[1]
+  map.on("load", () => {
+    mapLoaded.value = true;
+    currLng = props.center[0];
+    baseLat = props.center[1];
 
-    upsertPoints()
-    applyMode()
-  })
+    upsertPoints();
+    applyMode();
+  });
 
-  map.on('error', (e) => console.error('Map error:', e?.error ?? e))
+  map.on("error", (e) => console.error("Map error:", e?.error ?? e));
 
-  const ro = new ResizeObserver(() => map?.resize())
-  ro.observe(mapEl.value)
-  ;(mapEl.value as any).__ro = ro
+  const ro = new ResizeObserver(() => map?.resize());
+  ro.observe(mapEl.value);
+  (mapEl.value as any).__ro = ro;
 
   if (props.autoPauseOnHidden)
-    document.addEventListener('visibilitychange', handleVisibility)
-})
+    document.addEventListener("visibilitychange", handleVisibility);
+});
 
 onBeforeUnmount(() => {
   if (props.autoPauseOnHidden)
-    document.removeEventListener('visibilitychange', handleVisibility)
+    document.removeEventListener("visibilitychange", handleVisibility);
 
   if (mapEl.value && (mapEl.value as any).__ro)
-    (mapEl.value as any).__ro.disconnect()
+    (mapEl.value as any).__ro.disconnect();
 
-  stopSpin()
-  map?.remove()
-  map = null
-})
+  stopSpin();
+  map?.remove();
+  map = null;
+});
+
+const centerOnPoint = (lat: number, lng: number, zoom = 5) => {
+  if (!map) return;
+
+  map.flyTo({
+    center: [lng, lat],
+    zoom,
+    speed: 1.2,
+    curve: 1.4,
+    essential: true,
+  });
+};
+
+defineExpose({
+  centerOnPoint,
+});
 
 watch(
   () => props.points,
   () => {
-    if (!mapLoaded.value) return
-    upsertPoints()
+    if (!mapLoaded.value) return;
+    upsertPoints();
   },
   { deep: true }
-)
-
+);
 </script>
 
 <template>
-  <div 
-    ref="mapEl" 
-    class="w-full h-[60vh] rounded-2xl overflow-hidden"
-  ></div>
+  <div class="relative w-full h-[60vh] rounded-2xl overflow-hidden">
+    <div
+      ref="mapEl"
+      class="map-shell w-full h-full"
+      :class="{ 'map-shell--loaded': mapLoaded }"
+    ></div>
+
+    <div
+      v-if="!mapLoaded"
+      class="absolute inset-0 bg-gray-100/60 animate-pulse"
+    />
+  </div>
 </template>
+
+<style scoped>
+.map-shell {
+  opacity: 0;
+  transform: scale(0.98);
+  transition: opacity 0.3s ease, transform 0.2s ease;
+}
+
+.map-shell--loaded {
+  opacity: 1;
+  transform: scale(1);
+}
+</style>

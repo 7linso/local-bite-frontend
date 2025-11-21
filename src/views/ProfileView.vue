@@ -127,140 +127,149 @@ watch(activeTab, (t) => {
 </script>
 
 <template>
-  <section class="flex items-center justify-center mt-10">
-    <form
-      @submit.prevent="submitUpdate(validate)"
-      class="w-[90%] sm:w-[400px] md:w-[500px] lg:w-[600px] bg-white rounded-2xl shadow-sm overflow-hidden border border-amber-900 p-5"
-    >
-      <div class="relative mb-5 flex justify-center">
-        <button
-          v-if="!isEditing"
-          type="button"
-          @click="isEditing = true"
-          class="absolute right-0 top-0 text-gray-500 hover:text-gray-700 z-10"
+  <Transition name="overlay-fade" mode="out-in" appear>
+    <div v-if="user" :key="user?._id">
+      <section class="flex items-center justify-center mt-10">
+        <form
+          @submit.prevent="submitUpdate(validate)"
+          class="w-[90%] sm:w-[400px] md:w-[500px] lg:w-[600px] bg-white rounded-2xl shadow-sm overflow-hidden border border-amber-900 p-5"
         >
-          <Pencil />
-        </button>
-        <div v-else class="absolute right-0 top-0 flex items-center gap-2 z-10">
+          <div class="relative mb-5 flex justify-center">
+            <button
+              v-if="!isEditing"
+              type="button"
+              @click="isEditing = true"
+              class="absolute right-0 top-0 text-gray-500 hover:text-gray-700 z-10"
+            >
+              <Pencil />
+            </button>
+            <div
+              v-else
+              class="absolute right-0 top-0 flex items-center gap-2 z-10"
+            >
+              <button
+                type="button"
+                @click="
+                  () => {
+                    setAllFromUser();
+                    isEditing = false;
+                  }
+                "
+                class="text-red-400 hover:text-red-600"
+              >
+                <X />
+              </button>
+
+              <button type="submit" class="text-green-400 hover:text-green-600">
+                <Check />
+              </button>
+            </div>
+
+            <ProfilePicForm
+              :src="auth.user?.profilePic || null"
+              :is-editing="isEditing"
+              :is-uploading="isUploading"
+              :temp-preview="tempPreview"
+              @pick="onPickProfilePic"
+            />
+          </div>
+
+          <ProfileEditForm
+            v-model:form="form"
+            :errors="errors"
+            :disabled="!isEditing"
+            :update="updateField"
+          />
+
+          <div class="mt-5">
+            <button
+              type="button"
+              @click="deleteOpen = true"
+              class="flex items-center justify-center gap-1 text-red-300 hover:text-red-500 mx-auto"
+            >
+              <Trash :size="14" /> delete account
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <section
+        class="w-[90%] sm:w-[400px] md:w-[500px] lg:w-[600px] bg-white rounded-2xl shadow-sm overflow-hidden border border-amber-900 p-5 my-10 mx-auto"
+      >
+        <div class="flex items-center justify-center gap-2 mb-4">
           <button
-            type="button"
-            @click="
-              () => {
-                setAllFromUser();
-                isEditing = false;
-              }
-            "
-            class="text-red-400 hover:text-red-600"
+            :class="[
+              'px-4 py-1.5 rounded-full border transition',
+              activeTab === 'collection'
+                ? 'bg-amber-900 text-white border-amber-900'
+                : 'bg-white text-amber-900 border-amber-900 hover:bg-amber-50',
+            ]"
+            @click="activeTab = 'collection'"
           >
-            <X />
+            My collection
           </button>
 
-          <button type="submit" class="text-green-400 hover:text-green-600">
-            <Check />
+          <button
+            :class="[
+              'px-4 py-1.5 rounded-full border transition',
+              activeTab === 'favs'
+                ? 'bg-amber-900 text-white border-amber-900'
+                : 'bg-white text-amber-900 border-amber-900 hover:bg-amber-50',
+            ]"
+            @click="activeTab = 'favs'"
+          >
+            Favourites
           </button>
         </div>
 
-        <ProfilePicForm
-          :src="auth.user?.profilePic || null"
-          :is-editing="isEditing"
-          :is-uploading="isUploading"
-          :temp-preview="tempPreview"
-          @pick="onPickProfilePic"
-        />
-      </div>
+        <Transition name="overlay-fade" mode="out-in">
+          <div v-if="activeTab === 'collection'" key="collection">
+            <RecipesList
+              :recipes="usersRecipes"
+              :loading="usersLoading"
+              :errors="{ list: usersError || '' }"
+              @openRecipe="(id: string) => router.push(`/recipes/${id}`)"
+              @toggle-like="onToggleLike"
+            />
 
-      <ProfileEditForm
-        v-model:form="form"
-        :errors="errors"
-        :disabled="!isEditing"
-        :update="updateField"
-      />
+            <div
+              v-if="usersHasNextPage"
+              class="flex justify-center items-center gap-2 mt-4"
+            >
+              <button
+                @click="fetchNextUsersRecipes"
+                class="inline-flex w-full md:w-auto items-center justify-center rounded-xl border border-gray-800 px-4 py-2 font-medium hover:bg-gray-900 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-800 transition"
+              >
+                More
+              </button>
+            </div>
+          </div>
 
-      <div class="mt-5">
-        <button
-          type="button"
-          @click="deleteOpen = true"
-          class="flex items-center justify-center gap-1 text-red-300 hover:text-red-500 mx-auto"
-        >
-          <Trash :size="14" /> delete account
-        </button>
-      </div>
-    </form>
-  </section>
+          <div v-else key="favs">
+            <RecipesList
+              :recipes="usersLikedRecipes"
+              :loading="likedLoading"
+              :errors="{ list: likedError || '' }"
+              @openRecipe="(id: string) => router.push(`/recipes/${id}`)"
+              @toggle-like="onToggleLike"
+            />
 
-  <section
-    class="w-[90%] sm:w-[400px] md:w-[500px] lg:w-[600px] bg-white rounded-2xl shadow-sm overflow-hidden border border-amber-900 p-5 my-10 mx-auto"
-  >
-    <div class="flex items-center justify-center gap-2 mb-4">
-      <button
-        :class="[
-          'px-4 py-1.5 rounded-full border transition',
-          activeTab === 'collection'
-            ? 'bg-amber-900 text-white border-amber-900'
-            : 'bg-white text-amber-900 border-amber-900 hover:bg-amber-50',
-        ]"
-        @click="activeTab = 'collection'"
-      >
-        My collection
-      </button>
-
-      <button
-        :class="[
-          'px-4 py-1.5 rounded-full border transition',
-          activeTab === 'favs'
-            ? 'bg-amber-900 text-white border-amber-900'
-            : 'bg-white text-amber-900 border-amber-900 hover:bg-amber-50',
-        ]"
-        @click="activeTab = 'favs'"
-      >
-        Favourites
-      </button>
+            <div
+              v-if="likedHasNextPage"
+              class="flex justify-center items-center gap-2 mt-4"
+            >
+              <button
+                @click="fetchNextUsersLikedRecipes"
+                class="inline-flex w-full md:w-auto items-center justify-center rounded-xl border border-gray-800 px-4 py-2 font-medium hover:bg-gray-900 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-800 transition"
+              >
+                More
+              </button>
+            </div>
+          </div>
+        </Transition>
+      </section>
     </div>
-
-    <div v-if="activeTab === 'collection'">
-      <RecipesList
-        :recipes="usersRecipes"
-        :loading="usersLoading"
-        :errors="{ list: usersError || '' }"
-        @openRecipe="(id: string) => router.push(`/recipes/${id}`)"
-        @toggle-like="onToggleLike"
-      />
-
-      <div
-        v-if="usersHasNextPage"
-        class="flex justify-center items-center gap-2 mt-4"
-      >
-        <button
-          @click="fetchNextUsersRecipes"
-          class="inline-flex w-full md:w-auto items-center justify-center rounded-xl border border-gray-800 px-4 py-2 font-medium hover:bg-gray-900 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-800 transition"
-        >
-          More
-        </button>
-      </div>
-    </div>
-
-    <div v-else>
-      <RecipesList
-        :recipes="usersLikedRecipes"
-        :loading="likedLoading"
-        :errors="{ list: likedError || '' }"
-        @openRecipe="(id: string) => router.push(`/recipes/${id}`)"
-        @toggle-like="onToggleLike"
-      />
-
-      <div
-        v-if="likedHasNextPage"
-        class="flex justify-center items-center gap-2 mt-4"
-      >
-        <button
-          @click="fetchNextUsersLikedRecipes"
-          class="inline-flex w-full md:w-auto items-center justify-center rounded-xl border border-gray-800 px-4 py-2 font-medium hover:bg-gray-900 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-800 transition"
-        >
-          More
-        </button>
-      </div>
-    </div>
-  </section>
+  </Transition>
 
   <DeleteModal
     :open="deleteOpen"
@@ -268,3 +277,15 @@ watch(activeTab, (t) => {
     @confirm="deleteAccount"
   />
 </template>
+
+<style scoped>
+.overlay-fade-enter-active,
+.overlay-fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.overlay-fade-enter-from,
+.overlay-fade-leave-to {
+  opacity: 0;
+}
+</style>

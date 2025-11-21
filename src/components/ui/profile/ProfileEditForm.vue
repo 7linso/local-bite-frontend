@@ -58,7 +58,6 @@ const readonly = computed(() => !!props.disabled)
         :disabled="disabled"
         class="w-full px-3 py-1 rounded-md border border-gray-600 bg-gray-100"
     />
-      />
       <p v-if="errors.email" class="text-xs text-red-600">{{ errors.email }}</p>
     </div>
 
